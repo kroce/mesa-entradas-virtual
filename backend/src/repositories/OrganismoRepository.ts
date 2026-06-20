@@ -77,4 +77,13 @@ export class OrganismoRepository {
       ...input,
     };
   }
+
+  delete(codigo: string): void {
+    const statement = db.prepare(`
+    DELETE FROM organismos
+    WHERE codigo = ?
+  `);
+
+    statement.run(codigo);
+  }
 }

@@ -36,4 +36,16 @@ export class OrganismoController {
 
     res.json(organismo);
   };
+
+  delete = (req: Request, res: Response): void => {
+    const { codigo } = req.params;
+
+    if (typeof codigo !== 'string' || !codigo.trim()) {
+      throw new AppError('Código de organismo inválido', 400);
+    }
+
+    this.organismoService.delete(codigo);
+
+    res.status(204).send();
+  };
 }

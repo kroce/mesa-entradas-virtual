@@ -28,4 +28,14 @@ export class OrganismoService {
 
     return this.organismoRepository.update(codigo, input);
   }
+
+  delete(codigo: string): void {
+    const existingOrganismo = this.organismoRepository.findByCodigo(codigo);
+
+    if (!existingOrganismo) {
+      throw new AppError('Organismo no encontrado', 404);
+    }
+
+    this.organismoRepository.delete(codigo);
+  }
 }
