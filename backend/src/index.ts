@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 
 import { initDatabase } from './database/db.js';
+import { errorHandler } from './middlewares/errorHandler.js';
 import { organismoRoutes } from './routes/organismoRoutes.js';
 
 initDatabase();
@@ -19,6 +20,8 @@ app.get('/api/health', (_req, res) => {
     status: 'ok',
   });
 });
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

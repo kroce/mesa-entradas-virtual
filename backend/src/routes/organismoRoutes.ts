@@ -11,3 +11,4 @@ const organismoController = new OrganismoController(organismoService);
 export const organismoRoutes = Router();
 
 organismoRoutes.get('/organismos', organismoController.list);
+organismoRoutes.post('/organismos', organismoController.create);

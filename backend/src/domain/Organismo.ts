@@ -9,3 +9,5 @@ export type Organismo = {
   ciudad: Ciudad;
   fuero: Fuero;
 };
+
+export type CreateOrganismoInput = Organismo;
