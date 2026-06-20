@@ -54,4 +54,62 @@ Pendiente de desarrollo.
 
 ## Puesta en marcha
 
-Pendiente de completar.
+### Backend
+
+Desde la carpeta `backend`, instalar dependencias:
+
+```bash
+npm install
+```
+
+Levantar el servidor en modo desarrollo:
+
+```bash
+npm run dev
+```
+
+Por defecto, el backend queda disponible en:
+
+```txt
+http://localhost:3000
+```
+
+El puerto puede modificarse usando la variable de entorno `PORT`. Por ejemplo:
+
+```bash
+PORT=3001 npm run dev
+```
+
+Endpoint de verificación:
+
+```txt
+GET http://localhost:3000/api/health
+```
+
+Respuesta esperada:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+### Comandos útiles
+
+Verificar compilación de TypeScript:
+
+```bash
+npm run build
+```
+
+Ejecutar linter:
+
+```bash
+npm run lint
+```
+
+Formatear el código:
+
+```bash
+npm run format
+```
