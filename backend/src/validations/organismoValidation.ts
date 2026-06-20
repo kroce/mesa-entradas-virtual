@@ -1,4 +1,9 @@
-import type { CreateOrganismoInput, Ciudad, Fuero } from '../domain/Organismo.js';
+import type {
+  Ciudad,
+  CreateOrganismoInput,
+  Fuero,
+  UpdateOrganismoInput,
+} from '../domain/Organismo.js';
 import { AppError } from '../errors/AppError.js';
 
 export function validateCreateOrganismoInput(input: unknown): CreateOrganismoInput {
@@ -6,10 +11,32 @@ export function validateCreateOrganismoInput(input: unknown): CreateOrganismoInp
     throw new AppError('Body inválido', 400);
   }
 
-  const { codigo, nombre, caratula, ciudad, fuero } = input;
+  const { codigo } = input;
+
+  if (typeof codigo !== 'string' || !codigo.trim()) {
+    throw new AppError('Todos los campos son obligatorios', 400);
+  }
+
+  const organismoData = validateOrganismoEditableFields(input);
+
+  return {
+    codigo: codigo.trim(),
+    ...organismoData,
+  };
+}
+
+export function validateUpdateOrganismoInput(input: unknown): UpdateOrganismoInput {
+  if (!isRecord(input)) {
+    throw new AppError('Body inválido', 400);
+  }
+
+  return validateOrganismoEditableFields(input);
+}
+
+function validateOrganismoEditableFields(input: Record<string, unknown>): UpdateOrganismoInput {
+  const { nombre, caratula, ciudad, fuero } = input;
 
   if (
-    typeof codigo !== 'string' ||
     typeof nombre !== 'string' ||
     typeof caratula !== 'string' ||
     typeof ciudad !== 'string' ||
@@ -18,7 +45,7 @@ export function validateCreateOrganismoInput(input: unknown): CreateOrganismoInp
     throw new AppError('Todos los campos son obligatorios', 400);
   }
 
-  if (!codigo.trim() || !nombre.trim() || !caratula.trim() || !ciudad.trim() || !fuero.trim()) {
+  if (!nombre.trim() || !caratula.trim() || !ciudad.trim() || !fuero.trim()) {
     throw new AppError('Todos los campos son obligatorios', 400);
   }
 
@@ -31,7 +58,6 @@ export function validateCreateOrganismoInput(input: unknown): CreateOrganismoInp
   }
 
   return {
-    codigo: codigo.trim(),
     nombre: nombre.trim(),
     caratula: caratula.trim(),
     ciudad,

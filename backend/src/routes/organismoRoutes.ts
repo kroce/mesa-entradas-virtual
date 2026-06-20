@@ -12,3 +12,4 @@ export const organismoRoutes = Router();
 
 organismoRoutes.get('/organismos', organismoController.list);
 organismoRoutes.post('/organismos', organismoController.create);
+organismoRoutes.put('/organismos/:codigo', organismoController.update);
