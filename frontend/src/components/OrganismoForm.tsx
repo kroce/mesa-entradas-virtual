@@ -3,13 +3,20 @@ import { Button, Form, Input, Select } from 'antd';
 import type { CreateOrganismoInput } from '../types/Organismo';
 
 type OrganismoFormProps = {
+  initialValues?: Partial<CreateOrganismoInput>;
   onSubmit: (values: CreateOrganismoInput) => void;
   isSubmitting?: boolean;
+  submitLabel?: string;
 };
 
-export function OrganismoForm({ onSubmit, isSubmitting = false }: OrganismoFormProps) {
+export function OrganismoForm({
+  initialValues,
+  onSubmit,
+  isSubmitting = false,
+  submitLabel = 'Crear organismo',
+}: OrganismoFormProps) {
   return (
-    <Form<CreateOrganismoInput> layout="vertical" onFinish={onSubmit}>
+    <Form<CreateOrganismoInput> layout="vertical" initialValues={initialValues} onFinish={onSubmit}>
       <Form.Item
         label="Nombre"
         name="nombre"
@@ -56,7 +63,7 @@ export function OrganismoForm({ onSubmit, isSubmitting = false }: OrganismoFormP
       </Form.Item>
 
       <Button type="primary" htmlType="submit" loading={isSubmitting}>
-        Crear organismo
+        {submitLabel}
       </Button>
     </Form>
   );

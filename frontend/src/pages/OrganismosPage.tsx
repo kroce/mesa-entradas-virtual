@@ -1,15 +1,22 @@
-import { Alert, Card, Table } from 'antd';
+import { Alert, Button, Card, Modal, Popconfirm, Space, Table } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { createOrganismo, getOrganismos } from '../api/organismos';
+import {
+  createOrganismo,
+  deleteOrganismo,
+  getOrganismos,
+  updateOrganismo,
+} from '../api/organismos';
 import { OrganismoForm } from '../components/OrganismoForm';
-import type { CreateOrganismoInput, Organismo } from '../types/Organismo';
+import type { CreateOrganismoInput, Organismo, UpdateOrganismoInput } from '../types/Organismo';
 
 export function OrganismosPage() {
   const [organismos, setOrganismos] = useState<Organismo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingOrganismo, setEditingOrganismo] = useState<Organismo | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -51,6 +58,45 @@ export function OrganismosPage() {
     }
   }
 
+  async function handleDeleteOrganismo(codigo: string) {
+    try {
+      setError(null);
+
+      await deleteOrganismo(codigo);
+
+      setOrganismos((currentOrganismos) =>
+        currentOrganismos.filter((organismo) => organismo.codigo !== codigo),
+      );
+    } catch {
+      setError('No se pudo eliminar el organismo');
+    }
+  }
+
+  async function handleUpdateOrganismo(values: UpdateOrganismoInput) {
+    if (!editingOrganismo) {
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      setError(null);
+
+      const updatedOrganismo = await updateOrganismo(editingOrganismo.codigo, values);
+
+      setOrganismos((currentOrganismos) =>
+        currentOrganismos.map((organismo) =>
+          organismo.codigo === updatedOrganismo.codigo ? updatedOrganismo : organismo,
+        ),
+      );
+
+      setEditingOrganismo(null);
+    } catch {
+      setError('No se pudo actualizar el organismo');
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
   return (
     <>
       {error && <Alert type="error" title={error} showIcon />}
@@ -84,8 +130,48 @@ export function OrganismosPage() {
             title: 'Fuero',
             dataIndex: 'fuero',
           },
+          {
+            title: 'Acciones',
+            key: 'actions',
+            render: (_, organismo: Organismo) => (
+              <Space>
+                <Button onClick={() => setEditingOrganismo(organismo)}>Editar</Button>
+
+                <Popconfirm
+                  title="Eliminar organismo"
+                  description="¿Confirmás que querés eliminar este organismo?"
+                  okText="Sí"
+                  cancelText="No"
+                  onConfirm={() => void handleDeleteOrganismo(organismo.codigo)}
+                >
+                  <Button danger>Eliminar</Button>
+                </Popconfirm>
+              </Space>
+            ),
+          },
         ]}
       />
+      <Modal
+        title="Editar organismo"
+        open={editingOrganismo !== null}
+        onCancel={() => setEditingOrganismo(null)}
+        footer={null}
+      >
+        {editingOrganismo && (
+          <OrganismoForm
+            key={editingOrganismo.codigo}
+            initialValues={{
+              nombre: editingOrganismo.nombre,
+              caratula: editingOrganismo.caratula,
+              ciudad: editingOrganismo.ciudad,
+              fuero: editingOrganismo.fuero,
+            }}
+            onSubmit={handleUpdateOrganismo}
+            isSubmitting={isUpdating}
+            submitLabel="Guardar cambios"
+          />
+        )}
+      </Modal>
     </>
   );
 }
