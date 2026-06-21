@@ -4,6 +4,7 @@ import express from 'express';
 import { initDatabase } from './database/db.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { organismoRoutes } from './routes/organismoRoutes.js';
+import { personaRoutes } from './routes/personaRoutes.js';
 
 initDatabase();
 
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api', organismoRoutes);
+app.use('/api', personaRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({

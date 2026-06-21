@@ -9,3 +9,9 @@ CREATE TABLE IF NOT EXISTS organismos (
   CHECK (ciudad IN ('Neuquén', 'Zapala', 'Junín de los Andes')),
   CHECK (fuero IN ('Ejecutivos', 'Civil', 'Laboral', 'Familia'))
 );
+
+CREATE TABLE IF NOT EXISTS personas (
+  dni TEXT PRIMARY KEY,
+  apellido TEXT NOT NULL,
+  nombre TEXT NOT NULL
+);
