@@ -11,5 +11,3 @@ export type Organismo = {
 };
 
 export type CreateOrganismoInput = Omit<Organismo, 'codigo'>;
-
-export type UpdateOrganismoInput = Omit<Organismo, 'codigo'>;

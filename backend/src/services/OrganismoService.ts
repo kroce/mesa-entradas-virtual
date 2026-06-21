@@ -1,6 +1,7 @@
 import type { CreateOrganismoInput, Organismo, UpdateOrganismoInput } from '../domain/Organismo.js';
 import { OrganismoRepository } from '../repositories/OrganismoRepository.js';
 import { AppError } from '../errors/AppError.js';
+import { buildOrganismoCodigo } from '../domain/organismoCodigo.js';
 
 export class OrganismoService {
   constructor(private readonly organismoRepository: OrganismoRepository) {}
@@ -10,13 +11,18 @@ export class OrganismoService {
   }
 
   create(input: CreateOrganismoInput): Organismo {
-    const existingOrganismo = this.organismoRepository.findByCodigo(input.codigo);
+    const codigo = buildOrganismoCodigo(input.ciudad, input.fuero);
+
+    const existingOrganismo = this.organismoRepository.findByCodigo(codigo);
 
     if (existingOrganismo) {
       throw new AppError('Ya existe un organismo con ese código', 409);
     }
 
-    return this.organismoRepository.create(input);
+    return this.organismoRepository.create({
+      codigo,
+      ...input,
+    });
   }
 
   update(codigo: string, input: UpdateOrganismoInput): Organismo {

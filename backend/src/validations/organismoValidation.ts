@@ -11,18 +11,7 @@ export function validateCreateOrganismoInput(input: unknown): CreateOrganismoInp
     throw new AppError('Body inválido', 400);
   }
 
-  const { codigo } = input;
-
-  if (typeof codigo !== 'string' || !codigo.trim()) {
-    throw new AppError('Todos los campos son obligatorios', 400);
-  }
-
-  const organismoData = validateOrganismoEditableFields(input);
-
-  return {
-    codigo: codigo.trim(),
-    ...organismoData,
-  };
+  return validateOrganismoEditableFields(input);
 }
 
 export function validateUpdateOrganismoInput(input: unknown): UpdateOrganismoInput {

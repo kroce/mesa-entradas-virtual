@@ -1,5 +1,5 @@
 import { db } from '../database/db.js';
-import type { CreateOrganismoInput, Organismo, UpdateOrganismoInput } from '../domain/Organismo.js';
+import type { Organismo, UpdateOrganismoInput } from '../domain/Organismo.js';
 
 export class OrganismoRepository {
   findAll(): Organismo[] {
@@ -17,7 +17,7 @@ export class OrganismoRepository {
     return statement.all() as Organismo[];
   }
 
-  create(input: CreateOrganismoInput): Organismo {
+  create(input: Organismo): Organismo {
     const statement = db.prepare(`
 			INSERT INTO organismos (
 				codigo,
