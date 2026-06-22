@@ -1,9 +1,4 @@
-import type {
-  Ciudad,
-  CreateOrganismoInput,
-  Fuero,
-  UpdateOrganismoInput,
-} from '../domain/Organismo.js';
+import type { CreateOrganismoInput, UpdateOrganismoInput } from '../domain/Organismo.js';
 import { AppError } from '../errors/AppError.js';
 
 export function validateCreateOrganismoInput(input: unknown): CreateOrganismoInput {
@@ -23,45 +18,29 @@ export function validateUpdateOrganismoInput(input: unknown): UpdateOrganismoInp
 }
 
 function validateOrganismoEditableFields(input: Record<string, unknown>): UpdateOrganismoInput {
-  const { nombre, caratula, ciudad, fuero } = input;
+  const { nombre, caratula, ciudadCodigo, fueroCodigo } = input;
 
   if (
     typeof nombre !== 'string' ||
     typeof caratula !== 'string' ||
-    typeof ciudad !== 'string' ||
-    typeof fuero !== 'string'
+    typeof ciudadCodigo !== 'string' ||
+    typeof fueroCodigo !== 'string'
   ) {
     throw new AppError('Todos los campos son obligatorios', 400);
   }
 
-  if (!nombre.trim() || !caratula.trim() || !ciudad.trim() || !fuero.trim()) {
+  if (!nombre.trim() || !caratula.trim() || !ciudadCodigo.trim() || !fueroCodigo.trim()) {
     throw new AppError('Todos los campos son obligatorios', 400);
-  }
-
-  if (!isValidCiudad(ciudad)) {
-    throw new AppError('Ciudad inválida', 400);
-  }
-
-  if (!isValidFuero(fuero)) {
-    throw new AppError('Fuero inválido', 400);
   }
 
   return {
     nombre: nombre.trim(),
     caratula: caratula.trim(),
-    ciudad,
-    fuero,
+    ciudadCodigo: ciudadCodigo.trim(),
+    fueroCodigo: fueroCodigo.trim(),
   };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
-}
-
-function isValidCiudad(ciudad: string): ciudad is Ciudad {
-  return ciudad === 'Neuquén' || ciudad === 'Zapala' || ciudad === 'Junín de los Andes';
-}
-
-function isValidFuero(fuero: string): fuero is Fuero {
-  return fuero === 'Ejecutivos' || fuero === 'Civil' || fuero === 'Laboral' || fuero === 'Familia';
 }

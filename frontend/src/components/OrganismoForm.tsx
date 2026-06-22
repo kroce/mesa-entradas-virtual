@@ -4,7 +4,7 @@ import type { CreateOrganismoInput } from '../types/Organismo';
 
 type OrganismoFormProps = {
   initialValues?: Partial<CreateOrganismoInput>;
-  onSubmit: (values: CreateOrganismoInput) => void;
+  onSubmit: (values: CreateOrganismoInput) => void | Promise<void>;
   isSubmitting?: boolean;
   submitLabel?: string;
 };
@@ -15,8 +15,23 @@ export function OrganismoForm({
   isSubmitting = false,
   submitLabel = 'Crear organismo',
 }: OrganismoFormProps) {
+  const [form] = Form.useForm<CreateOrganismoInput>();
+
+  async function handleFinish(values: CreateOrganismoInput) {
+    await onSubmit(values);
+
+    if (!initialValues) {
+      form.resetFields();
+    }
+  }
+
   return (
-    <Form<CreateOrganismoInput> layout="vertical" initialValues={initialValues} onFinish={onSubmit}>
+    <Form<CreateOrganismoInput>
+      form={form}
+      layout="vertical"
+      initialValues={initialValues}
+      onFinish={handleFinish}
+    >
       <Form.Item
         label="Nombre"
         name="nombre"
@@ -35,29 +50,29 @@ export function OrganismoForm({
 
       <Form.Item
         label="Ciudad"
-        name="ciudad"
+        name="ciudadCodigo"
         rules={[{ required: true, message: 'La ciudad es obligatoria' }]}
       >
         <Select
           options={[
-            { label: 'Neuquén', value: 'Neuquén' },
-            { label: 'Zapala', value: 'Zapala' },
-            { label: 'Junín de los Andes', value: 'Junín de los Andes' },
+            { label: 'Neuquén', value: 'NQ' },
+            { label: 'Zapala', value: 'ZA' },
+            { label: 'Junín de los Andes', value: 'JU' },
           ]}
         />
       </Form.Item>
 
       <Form.Item
         label="Fuero"
-        name="fuero"
+        name="fueroCodigo"
         rules={[{ required: true, message: 'El fuero es obligatorio' }]}
       >
         <Select
           options={[
-            { label: 'Ejecutivos', value: 'Ejecutivos' },
-            { label: 'Civil', value: 'Civil' },
-            { label: 'Laboral', value: 'Laboral' },
-            { label: 'Familia', value: 'Familia' },
+            { label: 'Ejecutivos', value: 'EJ' },
+            { label: 'Civil', value: 'CI' },
+            { label: 'Laboral', value: 'LA' },
+            { label: 'Familia', value: 'FA' },
           ]}
         />
       </Form.Item>

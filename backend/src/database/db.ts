@@ -10,6 +10,8 @@ mkdirSync(databaseDirectory, { recursive: true });
 
 export const db = new Database(databasePath);
 
+db.pragma('foreign_keys = ON');
+
 export function initDatabase(): void {
   const schema = readFileSync(schemaPath, 'utf-8');
 

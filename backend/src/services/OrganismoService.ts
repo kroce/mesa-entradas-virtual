@@ -11,7 +11,7 @@ export class OrganismoService {
   }
 
   create(input: CreateOrganismoInput): Organismo {
-    const codigo = buildOrganismoCodigo(input.ciudad, input.fuero);
+    const codigo = buildOrganismoCodigo(input.ciudadCodigo, input.fueroCodigo);
 
     const existingOrganismo = this.organismoRepository.findByCodigo(codigo);
 

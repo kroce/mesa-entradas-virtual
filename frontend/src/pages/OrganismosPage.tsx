@@ -124,11 +124,13 @@ export function OrganismosPage() {
           },
           {
             title: 'Ciudad',
-            dataIndex: 'ciudad',
+            dataIndex: 'ciudadNombre',
+            key: 'ciudadNombre',
           },
           {
             title: 'Fuero',
-            dataIndex: 'fuero',
+            dataIndex: 'fueroNombre',
+            key: 'fueroNombre',
           },
           {
             title: 'Acciones',
@@ -163,8 +165,8 @@ export function OrganismosPage() {
             initialValues={{
               nombre: editingOrganismo.nombre,
               caratula: editingOrganismo.caratula,
-              ciudad: editingOrganismo.ciudad,
-              fuero: editingOrganismo.fuero,
+              ciudadCodigo: editingOrganismo.ciudadCodigo,
+              fueroCodigo: editingOrganismo.fueroCodigo,
             }}
             onSubmit={handleUpdateOrganismo}
             isSubmitting={isUpdating}
