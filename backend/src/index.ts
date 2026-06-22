@@ -5,6 +5,7 @@ import { initDatabase } from './database/db.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { organismoRoutes } from './routes/organismoRoutes.js';
 import { personaRoutes } from './routes/personaRoutes.js';
+import { expedienteRoutes } from './routes/expedienteRoutes.js';
 
 initDatabase();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 app.use('/api', organismoRoutes);
 app.use('/api', personaRoutes);
+app.use('/api', expedienteRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({
