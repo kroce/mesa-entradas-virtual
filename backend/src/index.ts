@@ -6,6 +6,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { organismoRoutes } from './routes/organismoRoutes.js';
 import { personaRoutes } from './routes/personaRoutes.js';
 import { expedienteRoutes } from './routes/expedienteRoutes.js';
+import { estadisticasRoutes } from './routes/estadisticasRoutes.js';
 
 initDatabase();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api', organismoRoutes);
 app.use('/api', personaRoutes);
 app.use('/api', expedienteRoutes);
+app.use('/api', estadisticasRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({
