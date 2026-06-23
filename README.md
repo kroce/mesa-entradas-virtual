@@ -40,17 +40,42 @@ El sistema debe permitir:
 - Administrar y listar organismos.
 - Mostrar estadísticas de expedientes registrados por año, ciudad y fuero.
 
-## Decisiones iniciales de diseño
+## Decisiones de diseño
 
 - Se utiliza una arquitectura cliente-servidor.
 - El frontend y el backend viven en el mismo repositorio para simplificar la entrega y la puesta en marcha.
-- El backend se organiza por capas: rutas, controllers, services y repositories.
+- El backend se organiza en capas simples:
+  - `routes`: definición de endpoints.
+  - `controllers`: manejo de request/response.
+  - `services`: reglas de negocio y coordinación de casos de uso.
+  - `repositories`: acceso a datos.
+  - `domain`: tipos principales del modelo.
+
 - Se utiliza SQLite por practicidad y porque el dominio requiere relaciones entre entidades.
-- Las ciudades y fueros se tratan como valores acotados según los requerimientos.
+- Las ciudades, fueros y tipos de vínculo se modelan como catálogos para evitar valores hardcodeados en la lógica de negocio.
+- La relación entre expedientes y personas se modela como una relación muchos a muchos mediante la tabla `expediente_personas`.
+- La regla de un único ACTOR principal por expediente se refuerza desde la lógica de negocio y desde la base de datos.
 
 ## Estado de implementación
 
-Pendiente de desarrollo.
+Implementado en backend:
+
+- Alta y listado de personas.
+- Alta y listado de organismos.
+- Alta y listado de expedientes.
+- Asociación de personas a expedientes mediante tipos de vínculo.
+- Consulta de personas asociadas a un expediente.
+- Consulta de expedientes asociados a una persona, incluyendo el vínculo correspondiente.
+- Estadísticas de expedientes agrupadas por año, ciudad y fuero.
+
+Pendiente / en desarrollo:
+
+- Interfaz frontend para operar los flujos principales.
+- Visualización de estadísticas en tablas.
+
+## Posibles mejoras
+
+- Permitir agregar, modificar o quitar personas asociadas a un expediente luego de su creación.
 
 ## Puesta en marcha
 
