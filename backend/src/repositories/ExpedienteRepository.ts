@@ -1,5 +1,10 @@
 import { db } from '../database/db.js';
-import type { CreateExpedienteInput, Expediente } from '../domain/Expediente.js';
+import type {
+  CreateExpedienteInput,
+  Expediente,
+  ExpedientePersona,
+  ExpedienteConVinculo,
+} from '../domain/Expediente.js';
 
 type ExpedienteRow = {
   clave: string;
@@ -46,6 +51,46 @@ export class ExpedienteRepository {
     const expediente = statement.get(clave) as ExpedienteRow | undefined;
 
     return expediente ?? null;
+  }
+
+  findPersonasByClave(expedienteClave: string): ExpedientePersona[] {
+    const statement = db.prepare(`
+    SELECT 
+      p.dni,
+      p.apellido,
+      p.nombre,
+      tv.id AS tipoVinculoId,
+      tv.descripcion AS tipoVinculoDescripcion
+    FROM expediente_personas ep
+    JOIN personas p ON p.dni = ep.persona_dni
+    JOIN tipos_vinculo tv ON tv.id = ep.tipo_vinculo_id
+    WHERE ep.expediente_clave = ?
+    ORDER BY tv.id, p.apellido, p.nombre
+  `);
+
+    return statement.all(expedienteClave) as ExpedientePersona[];
+  }
+
+  findByPersonaDni(personaDni: string): ExpedienteConVinculo[] {
+    const statement = db.prepare(`
+    SELECT
+      e.clave,
+      e.organismo_codigo AS organismoCodigo,
+      e.tipo,
+      e.numero,
+      e.anio,
+      e.caratula,
+      e.ciudad_codigo AS ciudadCodigo,
+			tv.id AS tipoVinculoId,
+      tv.descripcion AS tipoVinculoDescripcion
+    FROM expedientes e
+    JOIN expediente_personas ep ON ep.expediente_clave = e.clave
+		JOIN tipos_vinculo tv ON tv.id = ep.tipo_vinculo_id
+    WHERE ep.persona_dni = ?
+    ORDER BY e.anio DESC, e.numero DESC
+  `);
+
+    return statement.all(personaDni) as ExpedienteConVinculo[];
   }
 
   create(input: CreateExpedienteInput & { clave: string }): Expediente {

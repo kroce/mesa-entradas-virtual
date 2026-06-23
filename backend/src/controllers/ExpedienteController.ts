@@ -17,4 +17,30 @@ export class ExpedienteController {
 
     res.status(201).json(expediente);
   };
+
+  listPersonasByExpediente = (req: Request, res: Response): void => {
+    const { clave } = req.params;
+
+    if (typeof clave !== 'string') {
+      res.status(400).json({ message: 'Expediente clave is required' });
+      return;
+    }
+
+    const personas = this.expedienteService.findPersonasByClave(clave);
+
+    res.json(personas);
+  };
+
+  listByPersona = (req: Request, res: Response): void => {
+    const { dni } = req.params;
+
+    if (typeof dni !== 'string') {
+      res.status(400).json({ message: 'Persona DNI is required' });
+      return;
+    }
+
+    const expedientes = this.expedienteService.findByPersonaDni(dni);
+
+    res.json(expedientes);
+  };
 }

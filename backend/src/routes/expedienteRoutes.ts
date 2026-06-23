@@ -12,3 +12,5 @@ export const expedienteRoutes = Router();
 
 expedienteRoutes.get('/expedientes', expedienteController.list);
 expedienteRoutes.post('/expedientes', expedienteController.create);
+expedienteRoutes.get('/expedientes/:clave/personas', expedienteController.listPersonasByExpediente);
+expedienteRoutes.get('/personas/:dni/expedientes', expedienteController.listByPersona);

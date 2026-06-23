@@ -15,6 +15,19 @@ export type ExpedientePersonaInput = {
   tipoVinculoId: number;
 };
 
+export type ExpedientePersona = {
+  dni: string;
+  apellido: string;
+  nombre: string;
+  tipoVinculoId: number;
+  tipoVinculoDescripcion: string;
+};
+
+export type ExpedienteConVinculo = Expediente & {
+  tipoVinculoId: number;
+  tipoVinculoDescripcion: string;
+};
+
 export type CreateExpedienteInput = {
   organismoCodigo: string;
   tipo: ExpedienteTipo;

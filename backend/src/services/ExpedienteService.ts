@@ -1,4 +1,9 @@
-import type { CreateExpedienteInput, Expediente } from '../domain/Expediente.js';
+import type {
+  CreateExpedienteInput,
+  Expediente,
+  ExpedientePersona,
+  ExpedienteConVinculo,
+} from '../domain/Expediente.js';
 import { buildExpedienteClave } from '../domain/expedienteClave.js';
 import { AppError } from '../errors/AppError.js';
 import { ExpedienteRepository } from '../repositories/ExpedienteRepository.js';
@@ -27,6 +32,20 @@ export class ExpedienteService {
       clave,
       ...input,
     });
+  }
+
+  findPersonasByClave(expedienteClave: string): ExpedientePersona[] {
+    const expediente = this.expedienteRepository.findByClave(expedienteClave);
+
+    if (!expediente) {
+      throw new Error('Expediente not found');
+    }
+
+    return this.expedienteRepository.findPersonasByClave(expedienteClave);
+  }
+
+  findByPersonaDni(personaDni: string): ExpedienteConVinculo[] {
+    return this.expedienteRepository.findByPersonaDni(personaDni);
   }
 
   private validateActorPrincipal(input: CreateExpedienteInput): void {
