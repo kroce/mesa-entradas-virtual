@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Card, Modal, Space, Spin, Table, Typography } from 'antd';
-import type { TableProps } from 'antd';
-
+import { Alert, Card, Space, Spin, Typography } from 'antd';
 import { createExpediente, getExpedientes, getPersonasByExpediente } from '../api/expedientes';
 import { getOrganismos } from '../api/organismos';
 import { getPersonas } from '../api/personas';
@@ -9,7 +7,9 @@ import { ExpedienteForm } from '../components/ExpedienteForm';
 import type { CreateExpedienteInput, Expediente, ExpedientePersona } from '../types/Expediente';
 import type { Organismo } from '../types/Organismo';
 import type { Persona } from '../types/Persona';
+
 import { ExpedientesList } from '../components/ExpedientesList';
+import { ExpedientePersonasModal } from '../components/ExpedientePersonasModal';
 
 const { Title } = Typography;
 
@@ -60,11 +60,6 @@ export function ExpedientesPage() {
     }
   }
 
-  function handleCloseModal() {
-    setSelectedExpediente(null);
-    setPersonas([]);
-  }
-
   useEffect(() => {
     let ignore = false;
 
@@ -98,29 +93,6 @@ export function ExpedientesPage() {
       ignore = true;
     };
   }, []);
-
-  const personaColumns: TableProps<ExpedientePersona>['columns'] = [
-    {
-      title: 'DNI',
-      dataIndex: 'dni',
-      key: 'dni',
-    },
-    {
-      title: 'Apellido',
-      dataIndex: 'apellido',
-      key: 'apellido',
-    },
-    {
-      title: 'Nombre',
-      dataIndex: 'nombre',
-      key: 'nombre',
-    },
-    {
-      title: 'Vínculo',
-      dataIndex: 'tipoVinculoDescripcion',
-      key: 'tipoVinculoDescripcion',
-    },
-  ];
 
   return (
     <Space orientation="vertical" size="large" style={{ width: '100%' }}>
@@ -161,20 +133,15 @@ export function ExpedientesPage() {
         onViewPersonas={handleViewPersonas}
       />
 
-      <Modal
-        className="dark-modal"
-        title={`Personas asociadas${selectedExpediente ? ` - ${selectedExpediente.clave}` : ''}`}
-        open={selectedExpediente !== null}
-        onCancel={handleCloseModal}
-        footer={null}
-        width={800}
-      >
-        {isLoadingPersonas ? (
-          <Spin />
-        ) : (
-          <Table rowKey="dni" columns={personaColumns} dataSource={personas} pagination={false} />
-        )}
-      </Modal>
+      <ExpedientePersonasModal
+        expediente={selectedExpediente}
+        personas={personas}
+        isLoading={isLoadingPersonas}
+        onClose={() => {
+          setSelectedExpediente(null);
+          setPersonas([]);
+        }}
+      />
     </Space>
   );
 }
