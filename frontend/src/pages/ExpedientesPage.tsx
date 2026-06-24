@@ -1,19 +1,47 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, Card, Modal, Spin, Table, Typography } from 'antd';
+import { Alert, Button, Card, Input, Modal, Space, Spin, Table, Typography } from 'antd';
 import type { TableProps } from 'antd';
 
-import { getExpedientes, getPersonasByExpediente } from '../api/expedientes';
-import type { Expediente, ExpedientePersona } from '../types/Expediente';
+import { createExpediente, getExpedientes, getPersonasByExpediente } from '../api/expedientes';
+import { getOrganismos } from '../api/organismos';
+import { getPersonas } from '../api/personas';
+import { ExpedienteForm } from '../components/ExpedienteForm';
+import type { CreateExpedienteInput, Expediente, ExpedientePersona } from '../types/Expediente';
+import type { Organismo } from '../types/Organismo';
+import type { Persona } from '../types/Persona';
 
 const { Title } = Typography;
 
 export function ExpedientesPage() {
   const [expedientes, setExpedientes] = useState<Expediente[]>([]);
+  const [organismos, setOrganismos] = useState<Organismo[]>([]);
+  const [personasDisponibles, setPersonasDisponibles] = useState<Persona[]>([]);
   const [personas, setPersonas] = useState<ExpedientePersona[]>([]);
   const [selectedExpediente, setSelectedExpediente] = useState<Expediente | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPersonas, setIsLoadingPersonas] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchText, setSearchText] = useState('');
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  async function handleCreateExpediente(input: CreateExpedienteInput) {
+    setIsSubmitting(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const createdExpediente = await createExpediente(input);
+
+      setExpedientes((currentExpedientes) => [createdExpediente, ...currentExpedientes]);
+
+      setSuccessMessage(`Expediente ${createdExpediente.clave} creado correctamente.`);
+    } catch {
+      setError('No se pudo crear el expediente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   async function handleViewPersonas(expediente: Expediente) {
     setSelectedExpediente(expediente);
@@ -39,16 +67,22 @@ export function ExpedientesPage() {
   useEffect(() => {
     let ignore = false;
 
-    async function loadInitialExpedientes() {
+    async function loadInitialData() {
       try {
-        const data = await getExpedientes();
+        const [expedientesData, organismosData, personasData] = await Promise.all([
+          getExpedientes(),
+          getOrganismos(),
+          getPersonas(),
+        ]);
 
         if (!ignore) {
-          setExpedientes(data);
+          setExpedientes(expedientesData);
+          setOrganismos(organismosData);
+          setPersonasDisponibles(personasData);
         }
       } catch {
         if (!ignore) {
-          setError('No se pudieron cargar los expedientes.');
+          setError('No se pudieron cargar los datos iniciales.');
         }
       } finally {
         if (!ignore) {
@@ -57,7 +91,7 @@ export function ExpedientesPage() {
       }
     }
 
-    void loadInitialExpedientes();
+    void loadInitialData();
 
     return () => {
       ignore = true;
@@ -140,23 +174,84 @@ export function ExpedientesPage() {
     },
   ];
 
+  const normalizedSearchText = searchText.trim().toLowerCase();
+  const shouldFilter = normalizedSearchText.length >= 3;
+
+  const filteredExpedientes = expedientes.filter((expediente) => {
+    if (!shouldFilter) {
+      return true;
+    }
+
+    return (
+      expediente.clave.toLowerCase().includes(normalizedSearchText) ||
+      expediente.caratula.toLowerCase().includes(normalizedSearchText) ||
+      expediente.organismoCodigo.toLowerCase().includes(normalizedSearchText) ||
+      expediente.ciudadCodigo.toLowerCase().includes(normalizedSearchText) ||
+      expediente.anio.toString().includes(normalizedSearchText) ||
+      expediente.numero.toString().includes(normalizedSearchText)
+    );
+  });
+
   return (
-    <Card>
-      <Title level={2}>Expedientes</Title>
+    <Space orientation="vertical" size="large" style={{ width: '100%' }}>
+      {error && <Alert type="error" title={error} />}
 
-      {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
-
-      {isLoading ? (
-        <Spin />
-      ) : (
-        <Table
-          className="large-table"
-          rowKey="clave"
-          columns={columns}
-          dataSource={expedientes}
-          pagination={{ pageSize: 5 }}
+      {successMessage && (
+        <Alert
+          type="success"
+          title={successMessage}
+          showIcon
+          closable={{
+            onClose: () => setSuccessMessage(null),
+          }}
         />
       )}
+
+      <Card>
+        <Title level={2}>Nuevo expediente</Title>
+
+        <div className="form-container">
+          {isLoading ? (
+            <Spin />
+          ) : (
+            <ExpedienteForm
+              organismos={organismos}
+              personas={personasDisponibles}
+              isSubmitting={isSubmitting}
+              onSubmit={handleCreateExpediente}
+            />
+          )}
+        </div>
+      </Card>
+
+      <Card>
+        <Title level={2}>Expedientes</Title>
+
+        <div className="search-container">
+          <Input.Search
+            placeholder="Buscar por clave, carátula, organismo, ciudad, año o número. Mínimo 3 caracteres"
+            allowClear
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+          />
+        </div>
+
+        {isLoading ? (
+          <Spin />
+        ) : (
+          <Table
+            className="large-table"
+            rowKey="clave"
+            columns={columns}
+            dataSource={filteredExpedientes}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              pageSizeOptions: [10, 20, 50],
+            }}
+          />
+        )}
+      </Card>
 
       <Modal
         className="dark-modal"
@@ -172,6 +267,6 @@ export function ExpedientesPage() {
           <Table rowKey="dni" columns={personaColumns} dataSource={personas} pagination={false} />
         )}
       </Modal>
-    </Card>
+    </Space>
   );
 }

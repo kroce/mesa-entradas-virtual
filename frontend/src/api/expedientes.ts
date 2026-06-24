@@ -46,7 +46,7 @@ export async function getPersonasByExpediente(clave: string): Promise<Expediente
 }
 
 export async function getExpedientesByPersona(dni: string): Promise<ExpedienteConVinculo[]> {
-  const response = await fetch(`${API_BASE_URL}/personas/${dni}/expendientes`);
+  const response = await fetch(`${API_BASE_URL}/personas/${dni}/expedientes`);
 
   if (!response.ok) {
     throw new Error('No se pudieron obtener los expedientes de la persona');

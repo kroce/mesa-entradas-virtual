@@ -4,6 +4,8 @@ import { Alert, Card, Modal, Space, Spin, Typography } from 'antd';
 import { createPersona, getPersonas, updatePersona } from '../api/personas';
 import { PersonaForm } from '../components/PersonaForm';
 import { PersonasList } from '../components/PersonasList';
+import { ExpedientesPorPersona } from '../components/ExpedientesPorPersona';
+
 import type { CreatePersonaInput, Persona, UpdatePersonaInput } from '../types/Persona';
 
 const { Title } = Typography;
@@ -117,7 +119,15 @@ export function PersonasPage() {
         </div>
       </Card>
 
-      {isLoading ? <Spin /> : <PersonasList personas={personas} onEdit={setSelectedPersona} />}
+      {isLoading ? (
+        <Spin />
+      ) : (
+        <>
+          <PersonasList personas={personas} onEdit={setSelectedPersona} />
+
+          <ExpedientesPorPersona personas={personas} />
+        </>
+      )}
 
       <Modal
         className="dark-modal"
