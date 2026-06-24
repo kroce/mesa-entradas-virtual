@@ -1,6 +1,7 @@
 import { Tabs, Typography } from 'antd';
-import { OrganismosPage } from './pages/OrganismosPage';
 import { ExpedientesPage } from './pages/ExpedientesPage';
+import { OrganismosPage } from './pages/OrganismosPage';
+import { PersonasPage } from './pages/PersonasPage';
 import './App.css';
 
 const { Title } = Typography;
@@ -41,6 +42,11 @@ function App() {
               key: 'organismos',
               label: 'Organismos',
               children: <OrganismosPage />,
+            },
+            {
+              key: 'personas',
+              label: 'Personas',
+              children: <PersonasPage />,
             },
           ]}
         />
