@@ -1,4 +1,5 @@
 import { Tabs, Typography } from 'antd';
+import { EstadisticasPage } from './pages/EstadisticasPage';
 import { ExpedientesPage } from './pages/ExpedientesPage';
 import { OrganismosPage } from './pages/OrganismosPage';
 import { PersonasPage } from './pages/PersonasPage';
@@ -47,6 +48,11 @@ function App() {
               key: 'personas',
               label: 'Personas',
               children: <PersonasPage />,
+            },
+            {
+              key: 'estadisticas',
+              label: 'Estadísticas',
+              children: <EstadisticasPage />,
             },
           ]}
         />

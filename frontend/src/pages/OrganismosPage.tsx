@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Modal, Popconfirm, Space, Table } from 'antd';
+import { Alert, Button, Card, Modal, Popconfirm, Space, Table, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import {
@@ -9,6 +9,8 @@ import {
 } from '../api/organismos';
 import { OrganismoForm } from '../components/OrganismoForm';
 import type { CreateOrganismoInput, Organismo, UpdateOrganismoInput } from '../types/Organismo';
+
+const { Title } = Typography;
 
 export function OrganismosPage() {
   const [organismos, setOrganismos] = useState<Organismo[]>([]);
@@ -101,14 +103,24 @@ export function OrganismosPage() {
     <>
       {error && <Alert type="error" title={error} showIcon />}
 
-      <Card title="Crear organismo" style={{ marginBottom: 24 }}>
-        <OrganismoForm onSubmit={handleCreateOrganismo} isSubmitting={isSubmitting} />
+      <Card style={{ marginBottom: 24 }}>
+        <Title level={2}>Nuevo organismo</Title>
+
+        <div className="form-container">
+          <OrganismoForm onSubmit={handleCreateOrganismo} isSubmitting={isSubmitting} />
+        </div>
       </Card>
 
       <Table
+        className="large-table"
         rowKey="codigo"
         loading={isLoading}
         dataSource={organismos}
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: true,
+          pageSizeOptions: [10, 20, 50],
+        }}
         columns={[
           {
             title: 'Código',
