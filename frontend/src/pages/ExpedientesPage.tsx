@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, Card, Input, Modal, Space, Spin, Table, Typography } from 'antd';
+import { Alert, Card, Modal, Space, Spin, Table, Typography } from 'antd';
 import type { TableProps } from 'antd';
 
 import { createExpediente, getExpedientes, getPersonasByExpediente } from '../api/expedientes';
@@ -9,6 +9,7 @@ import { ExpedienteForm } from '../components/ExpedienteForm';
 import type { CreateExpedienteInput, Expediente, ExpedientePersona } from '../types/Expediente';
 import type { Organismo } from '../types/Organismo';
 import type { Persona } from '../types/Persona';
+import { ExpedientesList } from '../components/ExpedientesList';
 
 const { Title } = Typography;
 
@@ -98,59 +99,6 @@ export function ExpedientesPage() {
     };
   }, []);
 
-  const columns: TableProps<Expediente>['columns'] = [
-    {
-      title: 'Clave',
-      dataIndex: 'clave',
-      key: 'clave',
-    },
-    {
-      title: 'Carátula',
-      dataIndex: 'caratula',
-      key: 'caratula',
-    },
-    {
-      title: 'Organismo',
-      dataIndex: 'organismoCodigo',
-      key: 'organismoCodigo',
-    },
-    {
-      title: 'Tipo',
-      dataIndex: 'tipo',
-      key: 'tipo',
-    },
-    {
-      title: 'Número',
-      dataIndex: 'numero',
-      key: 'numero',
-    },
-    {
-      title: 'Año',
-      dataIndex: 'anio',
-      key: 'anio',
-    },
-    {
-      title: 'Ciudad',
-      dataIndex: 'ciudadCodigo',
-      key: 'ciudadCodigo',
-    },
-    {
-      title: 'Acciones',
-      key: 'acciones',
-      align: 'center',
-      width: 140,
-      render: (_, expediente) => (
-        <Button
-          type="link"
-          style={{ padding: 0 }}
-          onClick={() => void handleViewPersonas(expediente)}
-        >
-          Ver personas
-        </Button>
-      ),
-    },
-  ];
-
   const personaColumns: TableProps<ExpedientePersona>['columns'] = [
     {
       title: 'DNI',
@@ -173,24 +121,6 @@ export function ExpedientesPage() {
       key: 'tipoVinculoDescripcion',
     },
   ];
-
-  const normalizedSearchText = searchText.trim().toLowerCase();
-  const shouldFilter = normalizedSearchText.length >= 3;
-
-  const filteredExpedientes = expedientes.filter((expediente) => {
-    if (!shouldFilter) {
-      return true;
-    }
-
-    return (
-      expediente.clave.toLowerCase().includes(normalizedSearchText) ||
-      expediente.caratula.toLowerCase().includes(normalizedSearchText) ||
-      expediente.organismoCodigo.toLowerCase().includes(normalizedSearchText) ||
-      expediente.ciudadCodigo.toLowerCase().includes(normalizedSearchText) ||
-      expediente.anio.toString().includes(normalizedSearchText) ||
-      expediente.numero.toString().includes(normalizedSearchText)
-    );
-  });
 
   return (
     <Space orientation="vertical" size="large" style={{ width: '100%' }}>
@@ -224,34 +154,12 @@ export function ExpedientesPage() {
         </div>
       </Card>
 
-      <Card>
-        <Title level={2}>Expedientes</Title>
-
-        <div className="search-container">
-          <Input.Search
-            placeholder="Buscar por clave, carátula, organismo, ciudad, año o número. Mínimo 3 caracteres"
-            allowClear
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-          />
-        </div>
-
-        {isLoading ? (
-          <Spin />
-        ) : (
-          <Table
-            className="large-table"
-            rowKey="clave"
-            columns={columns}
-            dataSource={filteredExpedientes}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              pageSizeOptions: [10, 20, 50],
-            }}
-          />
-        )}
-      </Card>
+      <ExpedientesList
+        expedientes={expedientes}
+        searchText={searchText}
+        onSearchTextChange={setSearchText}
+        onViewPersonas={handleViewPersonas}
+      />
 
       <Modal
         className="dark-modal"
