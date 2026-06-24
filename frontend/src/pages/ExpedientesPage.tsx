@@ -18,13 +18,12 @@ export function ExpedientesPage() {
   const [expedientes, setExpedientes] = useState<Expediente[]>([]);
   const [organismos, setOrganismos] = useState<Organismo[]>([]);
   const [personasDisponibles, setPersonasDisponibles] = useState<Persona[]>([]);
-  const [personas, setPersonas] = useState<ExpedientePersona[]>([]);
+  const [personasAsociadas, setPersonasAsociadas] = useState<ExpedientePersona[]>([]);
   const [selectedExpediente, setSelectedExpediente] = useState<Expediente | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPersonas, setIsLoadingPersonas] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchText, setSearchText] = useState('');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useAutoClearMessage(successMessage, setSuccessMessage);
@@ -49,13 +48,13 @@ export function ExpedientesPage() {
 
   async function handleViewPersonas(expediente: Expediente) {
     setSelectedExpediente(expediente);
-    setPersonas([]);
+    setPersonasAsociadas([]);
     setIsLoadingPersonas(true);
     setError(null);
 
     try {
       const data = await getPersonasByExpediente(expediente.clave);
-      setPersonas(data);
+      setPersonasAsociadas(data);
     } catch {
       setError('No se pudieron cargar las personas del expediente.');
     } finally {
@@ -131,18 +130,17 @@ export function ExpedientesPage() {
 
       <ExpedientesList
         expedientes={expedientes}
-        searchText={searchText}
-        onSearchTextChange={setSearchText}
+        isLoading={isLoading}
         onViewPersonas={handleViewPersonas}
       />
 
       <ExpedientePersonasModal
         expediente={selectedExpediente}
-        personas={personas}
+        personas={personasAsociadas}
         isLoading={isLoadingPersonas}
         onClose={() => {
           setSelectedExpediente(null);
-          setPersonas([]);
+          setPersonasAsociadas([]);
         }}
       />
     </Space>

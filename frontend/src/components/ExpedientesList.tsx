@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button, Card, Input, Table, Typography } from 'antd';
 import type { TableProps } from 'antd';
 
@@ -7,17 +8,12 @@ const { Title } = Typography;
 
 type ExpedientesListProps = {
   expedientes: Expediente[];
-  searchText: string;
-  onSearchTextChange: (value: string) => void;
+  isLoading: boolean;
   onViewPersonas: (expediente: Expediente) => void;
 };
 
-export function ExpedientesList({
-  expedientes,
-  searchText,
-  onSearchTextChange,
-  onViewPersonas,
-}: ExpedientesListProps) {
+export function ExpedientesList({ expedientes, isLoading, onViewPersonas }: ExpedientesListProps) {
+  const [searchText, setSearchText] = useState('');
   const normalizedSearchText = searchText.trim().toLowerCase();
   const shouldFilter = normalizedSearchText.length >= 3;
 
@@ -94,13 +90,14 @@ export function ExpedientesList({
           placeholder="Buscar por clave, carátula, organismo, ciudad, año o número. Mínimo 3 caracteres"
           allowClear
           value={searchText}
-          onChange={(event) => onSearchTextChange(event.target.value)}
+          onChange={(event) => setSearchText(event.target.value)}
         />
       </div>
 
       <Table
         className="large-table"
         rowKey="clave"
+        loading={isLoading}
         columns={columns}
         dataSource={filteredExpedientes}
         pagination={{
