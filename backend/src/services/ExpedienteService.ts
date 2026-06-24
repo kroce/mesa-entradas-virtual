@@ -19,6 +19,7 @@ export class ExpedienteService {
 
   create(input: CreateExpedienteInput): Expediente {
     this.validateActorPrincipal(input);
+    this.validatePersonasUnicas(input);
 
     const clave = buildExpedienteClave(input.organismoCodigo, input.tipo, input.numero, input.anio);
 
@@ -59,6 +60,18 @@ export class ExpedienteService {
 
     if (actorCount > 1) {
       throw new AppError('El expediente no puede tener más de un actor principal', 400);
+    }
+  }
+
+  private validatePersonasUnicas(input: CreateExpedienteInput): void {
+    const personaDnis = input.personas.map((persona) => persona.personaDni);
+    const uniquePersonaDnis = new Set(personaDnis);
+
+    if (personaDnis.length !== uniquePersonaDnis.size) {
+      throw new AppError(
+        'Una persona no puede estar asociada más de una vez al mismo expediente',
+        400,
+      );
     }
   }
 }
