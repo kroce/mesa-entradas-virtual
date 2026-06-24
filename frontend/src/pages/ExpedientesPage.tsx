@@ -10,6 +10,7 @@ import type { Persona } from '../types/Persona';
 
 import { ExpedientesList } from '../components/ExpedientesList';
 import { ExpedientePersonasModal } from '../components/ExpedientePersonasModal';
+import { useAutoClearMessage } from '../hooks/useAutoClearMessage';
 
 const { Title } = Typography;
 
@@ -25,6 +26,8 @@ export function ExpedientesPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useAutoClearMessage(successMessage, setSuccessMessage);
 
   async function handleCreateExpediente(input: CreateExpedienteInput) {
     setIsSubmitting(true);
