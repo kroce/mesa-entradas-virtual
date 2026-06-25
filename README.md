@@ -27,56 +27,92 @@ El proyecto fue desarrollado como challenge para el concurso de Programador Web 
 mesa-entradas-virtual/
   backend/
   frontend/
+  docker-compose.yml
   README.md
 ```
 
 ## Requisitos previos
 
-Para ejecutar el proyecto se necesita tener instalado:
+El proyecto puede ejecutarse de dos maneras.
+
+Para ejecución local:
 
 - Node.js
 - npm
 
-Se recomienda usar una versión actual de Node.js.
+Para ejecución con Docker:
+
+- Docker
+- Docker Compose
+
+Se recomienda usar una versión actual de Node.js si se elige la ejecución local.
+
+---
 
 ## Puesta en marcha
 
-El proyecto tiene dos aplicaciones separadas:
+Elegir una de las siguientes opciones:
 
-- Backend: API REST.
-- Frontend: aplicación web React.
+- Opción 1: ejecución local con Node.js y npm.
+- Opción 2: ejecución con Docker Compose.
 
-Deben ejecutarse en terminales separadas.
+### Opción 1: ejecución local
+
+En una terminal, levantar el backend:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+En otra terminal, levantar el frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Servicios expuestos habitualmente:
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:3000`
+- Healthcheck API: `http://localhost:3000/api/health`
+
+### Opción 2: ejecución con Docker
+
+Desde la raíz del proyecto:
+
+```bash
+docker compose up --build
+```
+
+Servicios expuestos:
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:3000`
+- Healthcheck API: `http://localhost:3000/api/health`
+
+Para detener los contenedores:
+
+```bash
+docker compose down
+```
 
 ---
 
 ## Backend
 
-Ingresar a la carpeta del backend:
+El backend expone una API REST.
 
-```bash
-cd backend
-```
-
-Instalar dependencias:
-
-```bash
-npm install
-```
-
-Levantar el servidor en modo desarrollo:
-
-```bash
-npm run dev
-```
-
-Por defecto, el backend queda disponible en:
+Por defecto queda disponible en:
 
 ```txt
 http://localhost:3000
 ```
 
-La API queda disponible bajo el prefijo:
+La API utiliza el prefijo:
 
 ```txt
 http://localhost:3000/api
@@ -85,7 +121,7 @@ http://localhost:3000/api
 Endpoint de verificación:
 
 ```txt
-GET http://localhost:3000/api/health
+GET /api/health
 ```
 
 Respuesta esperada:
@@ -112,25 +148,9 @@ En ese caso, también debe configurarse el frontend para apuntar al nuevo puerto
 
 ## Frontend
 
-En otra terminal, ingresar a la carpeta del frontend:
+El frontend es una aplicación React creada con Vite.
 
-```bash
-cd frontend
-```
-
-Instalar dependencias:
-
-```bash
-npm install
-```
-
-Levantar la aplicación en modo desarrollo:
-
-```bash
-npm run dev
-```
-
-Por defecto, Vite muestra en consola la URL local del frontend. Usualmente:
+Por defecto queda disponible en:
 
 ```txt
 http://localhost:5173
@@ -181,7 +201,7 @@ Incluyen:
 - 15 expedientes;
 - vínculos entre expedientes y personas.
 
-### Reinicializar la base de datos
+### Reinicializar la base de datos en ejecución local
 
 Si se desea regenerar la base desde cero con los datos de prueba, eliminar el archivo SQLite local generado por el backend y volver a iniciar el servidor.
 
@@ -206,6 +226,21 @@ npm run dev
 
 Al iniciar nuevamente, el backend vuelve a crear la base y carga los datos definidos en `schema.sql`.
 
+### Base de datos en Docker
+
+Cuando la aplicación se ejecuta con Docker Compose, la base SQLite del backend se persiste en un volumen llamado `backend_data`.
+
+Esto permite conservar los datos entre reinicios de contenedores.
+
+Para reinicializar la base en Docker y volver a cargar los datos definidos en `schema.sql`, eliminar el volumen y volver a construir:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+---
+
 ## Modelo de datos
 
 El siguiente diagrama resume las entidades principales y sus relaciones.
@@ -220,58 +255,60 @@ erDiagram
     TEXT nombre UK "NOT NULL"
   }
 
-FUEROS {
-TEXT codigo PK
-TEXT nombre UK "NOT NULL"
-}
+  FUEROS {
+    TEXT codigo PK
+    TEXT nombre UK "NOT NULL"
+  }
 
-ORGANISMOS {
-TEXT codigo PK
-TEXT nombre "NOT NULL"
-TEXT caratula "NOT NULL"
-TEXT ciudad_codigo FK "NOT NULL"
-TEXT fuero_codigo FK "NOT NULL"
-}
+  ORGANISMOS {
+    TEXT codigo PK
+    TEXT nombre "NOT NULL"
+    TEXT caratula "NOT NULL"
+    TEXT ciudad_codigo FK "NOT NULL"
+    TEXT fuero_codigo FK "NOT NULL"
+  }
 
-PERSONAS {
-TEXT dni PK
-TEXT apellido "NOT NULL"
-TEXT nombre "NOT NULL"
-}
+  PERSONAS {
+    TEXT dni PK
+    TEXT apellido "NOT NULL"
+    TEXT nombre "NOT NULL"
+  }
 
-TIPOS_VINCULO {
-INTEGER id PK
-TEXT descripcion UK "NOT NULL"
-}
+  TIPOS_VINCULO {
+    INTEGER id PK
+    TEXT descripcion UK "NOT NULL"
+  }
 
-EXPEDIENTES {
-TEXT clave PK
-TEXT organismo_codigo FK "NOT NULL"
-TEXT tipo "NOT NULL"
-INTEGER numero "NOT NULL"
-INTEGER anio "NOT NULL"
-TEXT caratula "NOT NULL"
-TEXT ciudad_codigo FK "NOT NULL"
-}
+  EXPEDIENTES {
+    TEXT clave PK
+    TEXT organismo_codigo FK "NOT NULL"
+    TEXT tipo "NOT NULL"
+    INTEGER numero "NOT NULL"
+    INTEGER anio "NOT NULL"
+    TEXT caratula "NOT NULL"
+    TEXT ciudad_codigo FK "NOT NULL"
+  }
 
-EXPEDIENTE_PERSONAS {
-TEXT expediente_clave PK, FK "NOT NULL"
-TEXT persona_dni PK, FK "NOT NULL"
-INTEGER tipo_vinculo_id FK "NOT NULL"
-}
+  EXPEDIENTE_PERSONAS {
+    TEXT expediente_clave PK, FK "NOT NULL"
+    TEXT persona_dni PK, FK "NOT NULL"
+    INTEGER tipo_vinculo_id FK "NOT NULL"
+  }
 
-CIUDADES ||--o{ ORGANISMOS : "tiene"
-FUEROS ||--o{ ORGANISMOS : "tiene"
+  CIUDADES ||--o{ ORGANISMOS : "tiene"
+  FUEROS ||--o{ ORGANISMOS : "tiene"
 
-ORGANISMOS ||--o{ EXPEDIENTES : "tramita"
-CIUDADES ||--o{ EXPEDIENTES : "corresponde"
+  ORGANISMOS ||--o{ EXPEDIENTES : "tramita"
+  CIUDADES ||--o{ EXPEDIENTES : "corresponde"
 
-EXPEDIENTES ||--o{ EXPEDIENTE_PERSONAS : "incluye"
-PERSONAS ||--o{ EXPEDIENTE_PERSONAS : "participa"
-TIPOS_VINCULO ||--o{ EXPEDIENTE_PERSONAS : "clasifica"
+  EXPEDIENTES ||--o{ EXPEDIENTE_PERSONAS : "incluye"
+  PERSONAS ||--o{ EXPEDIENTE_PERSONAS : "participa"
+  TIPOS_VINCULO ||--o{ EXPEDIENTE_PERSONAS : "clasifica"
 ```
 
 </details>
+
+---
 
 ## Comandos útiles
 
@@ -355,11 +392,14 @@ JNQFA EXP 1/2026
 ```
 
 - Restricción para evitar expedientes duplicados con la misma combinación de organismo, tipo, número y año.
+- Validación de coherencia entre organismo y ciudad del expediente.
 
 ### Personas asociadas a expedientes
 
 - Registro de expediente con actor principal obligatorio.
+
 - Asociación de varias personas a un expediente.
+
 - Tipos de vínculo disponibles:
   - ACTOR
   - DEMANDADO
@@ -367,12 +407,19 @@ JNQFA EXP 1/2026
   - VICTIMA
 
 - Listado de personas asociadas a un expediente.
+
 - Edición de personas asociadas a un expediente.
+
 - Alta de nueva persona vinculada a un expediente existente.
+
 - Baja de persona vinculada a un expediente existente.
+
 - Modificación del vínculo de una persona asociada.
+
 - Cambio de actor principal.
+
 - Restricción para que un expediente tenga exactamente un actor principal.
+
 - Restricción para que una persona no esté repetida dentro del mismo expediente.
 
 ### Personas
@@ -389,6 +436,7 @@ JNQFA EXP 1/2026
 - Edición de organismos.
 - Eliminación de organismos.
 - Validación del formato del código de organismo.
+- Validación para evitar eliminar organismos que ya tienen expedientes asociados.
 
 El código de organismo sigue el formato:
 
@@ -441,7 +489,7 @@ GET /api/personas/:dni/expedientes
 ```txt
 GET /api/organismos
 POST /api/organismos
-PATCH /api/organismos/:codigo
+PUT /api/organismos/:codigo
 DELETE /api/organismos/:codigo
 ```
 
@@ -512,6 +560,7 @@ Se separaron dos tipos de validación:
    - existencia de expediente;
    - existencia de personas;
    - existencia de tipos de vínculo;
+   - coherencia entre organismo y ciudad;
    - actor principal obligatorio;
    - un único actor principal por expediente;
    - persona no repetida dentro del mismo expediente.
@@ -568,6 +617,12 @@ La clave del expediente no se modifica una vez creado.
 
 La clave identifica al expediente, por lo que modificar organismo, tipo, número o año implicaría cambiar su identidad. Por ese motivo se permite editar la carátula/título, pero no la clave.
 
+### Docker
+
+Se agregó una configuración con Docker Compose para permitir levantar frontend y backend desde la raíz del proyecto con un único comando.
+
+La base SQLite del backend se persiste en un volumen Docker para mantener los datos entre reinicios de contenedores.
+
 ---
 
 ## Dificultades encontradas
@@ -614,6 +669,12 @@ En el frontend se utiliza:
 encodeURIComponent(clave);
 ```
 
+### Eliminación de organismos con expedientes asociados
+
+La eliminación de organismos requiere validar si existen expedientes asociados.
+
+Si el organismo ya está referenciado por expedientes, la API responde con un error de conflicto y no permite la eliminación.
+
 ---
 
 ## Alcance y limitaciones
@@ -625,11 +686,4 @@ encodeURIComponent(clave);
 - La aplicación no incluye autenticación, ya que no fue requerida para el challenge.
 - La aplicación no incluye paginación backend; el listado se resuelve con carga completa y filtrado local en frontend.
 - La base SQLite se utiliza localmente para simplificar la puesta en marcha.
-
----
-
-## Estado de dockerización
-
-La aplicación no se entrega dockerizada en esta versión.
-
-La puesta en marcha se realiza mediante los comandos descriptos en este README para backend y frontend.
+- En Docker, la base SQLite se persiste mediante un volumen.
