@@ -4,6 +4,8 @@ import type {
   Expediente,
   ExpedientePersona,
   ExpedienteConVinculo,
+  UpdateExpedienteInput,
+  UpdateExpedientePersonasInput,
 } from '../domain/Expediente.js';
 
 type ExpedienteRow = {
@@ -157,5 +159,112 @@ export class ExpedienteRepository {
     }
 
     return createdExpediente;
+  }
+
+  update(clave: string, input: UpdateExpedienteInput): Expediente {
+    const statement = db.prepare(`
+    UPDATE expedientes
+    SET caratula = @caratula
+    WHERE clave = @clave
+  `);
+
+    statement.run({
+      clave,
+      caratula: input.caratula,
+    });
+
+    const updatedExpediente = this.findByClave(clave);
+
+    if (!updatedExpediente) {
+      throw new Error('Updated expediente could not be loaded');
+    }
+
+    return updatedExpediente;
+  }
+
+  replacePersonas(
+    expedienteClave: string,
+    personas: UpdateExpedientePersonasInput['personas'],
+  ): ExpedientePersona[] {
+    const deleteStatement = db.prepare(`
+    DELETE FROM expediente_personas
+    WHERE expediente_clave = ?
+  `);
+
+    const insertStatement = db.prepare(`
+    INSERT INTO expediente_personas (
+      expediente_clave,
+      persona_dni,
+      tipo_vinculo_id
+    ) VALUES (
+      @expedienteClave,
+      @personaDni,
+      @tipoVinculoId
+    )
+  `);
+
+    const replaceTransaction = db.transaction(
+      (transactionInput: {
+        expedienteClave: string;
+        personas: UpdateExpedientePersonasInput['personas'];
+      }) => {
+        deleteStatement.run(transactionInput.expedienteClave);
+
+        for (const persona of transactionInput.personas) {
+          insertStatement.run({
+            expedienteClave: transactionInput.expedienteClave,
+            personaDni: persona.personaDni,
+            tipoVinculoId: persona.tipoVinculoId,
+          });
+        }
+      },
+    );
+
+    replaceTransaction({
+      expedienteClave,
+      personas,
+    });
+
+    return this.findPersonasByClave(expedienteClave);
+  }
+
+  allPersonasExist(personaDnis: string[]): boolean {
+    const uniquePersonaDnis = [...new Set(personaDnis)];
+
+    if (uniquePersonaDnis.length === 0) {
+      return true;
+    }
+
+    const placeholders = uniquePersonaDnis.map(() => '?').join(', ');
+
+    const statement = db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM personas
+    WHERE dni IN (${placeholders})
+  `);
+
+    const result = statement.get(...uniquePersonaDnis) as { count: number };
+
+    return result.count === uniquePersonaDnis.length;
+  }
+
+  allTiposVinculoExist(tipoVinculoIds: number[]): boolean {
+    const uniqueTipoVinculoIds = [...new Set(tipoVinculoIds)];
+
+    if (uniqueTipoVinculoIds.length === 0) {
+      return true;
+    }
+
+    const placeholders = uniqueTipoVinculoIds.map(() => '?').join(', ');
+
+    const statement = db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM tipos_vinculo
+    WHERE id IN (${placeholders})
+  `);
+
+    const result = statement.get(...uniqueTipoVinculoIds) as { count: number };
+
+    return result.count === uniqueTipoVinculoIds.length;
   }
 }

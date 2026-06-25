@@ -1,7 +1,11 @@
 import type { Request, Response } from 'express';
 
 import { ExpedienteService } from '../services/ExpedienteService.js';
-import { validateCreateExpedienteInput } from '../validations/expedienteValidation.js';
+import {
+  validateCreateExpedienteInput,
+  validateUpdateExpedienteInput,
+  validateUpdateExpedientePersonasInput,
+} from '../validations/expedienteValidation.js';
 
 export class ExpedienteController {
   constructor(private readonly expedienteService: ExpedienteService) {}
@@ -16,6 +20,34 @@ export class ExpedienteController {
     const expediente = this.expedienteService.create(input);
 
     res.status(201).json(expediente);
+  };
+
+  update = (req: Request, res: Response): void => {
+    const { clave } = req.params;
+
+    if (typeof clave !== 'string') {
+      res.status(400).json({ message: 'Expediente clave is required' });
+      return;
+    }
+
+    const input = validateUpdateExpedienteInput(req.body);
+    const expediente = this.expedienteService.update(clave, input);
+
+    res.json(expediente);
+  };
+
+  updatePersonas = (req: Request, res: Response): void => {
+    const { clave } = req.params;
+
+    if (typeof clave !== 'string') {
+      res.status(400).json({ message: 'Expediente clave is required' });
+      return;
+    }
+
+    const input = validateUpdateExpedientePersonasInput(req.body);
+    const personas = this.expedienteService.updatePersonas(clave, input);
+
+    res.json(personas);
   };
 
   listPersonasByExpediente = (req: Request, res: Response): void => {

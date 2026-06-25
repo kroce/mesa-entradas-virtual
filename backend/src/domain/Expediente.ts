@@ -37,3 +37,14 @@ export type CreateExpedienteInput = {
   ciudadCodigo: string;
   personas: ExpedientePersonaInput[];
 };
+
+export type UpdateExpedienteInput = {
+  caratula: string;
+};
+
+export type UpdateExpedientePersonasInput = {
+  personas: {
+    personaDni: string;
+    tipoVinculoId: number;
+  }[];
+};

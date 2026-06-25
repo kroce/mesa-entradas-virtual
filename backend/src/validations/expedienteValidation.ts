@@ -1,4 +1,9 @@
-import type { CreateExpedienteInput, ExpedienteTipo } from '../domain/Expediente.js';
+import type {
+  CreateExpedienteInput,
+  ExpedienteTipo,
+  UpdateExpedienteInput,
+  UpdateExpedientePersonasInput,
+} from '../domain/Expediente.js';
 import { AppError } from '../errors/AppError.js';
 
 export function validateCreateExpedienteInput(input: unknown): CreateExpedienteInput {
@@ -44,6 +49,57 @@ export function validateCreateExpedienteInput(input: unknown): CreateExpedienteI
     caratula: caratula.trim(),
     ciudadCodigo: ciudadCodigo.trim(),
     personas: personas.map(validateExpedientePersonaInput),
+  };
+}
+
+export function validateUpdateExpedienteInput(input: unknown): UpdateExpedienteInput {
+  if (!isRecord(input)) {
+    throw new AppError('Body inválido', 400);
+  }
+
+  const { caratula } = input;
+
+  if (typeof caratula !== 'string') {
+    throw new AppError('Carátula es obligatoria', 400);
+  }
+
+  if (!caratula.trim()) {
+    throw new AppError('Carátula es obligatoria', 400);
+  }
+
+  return {
+    caratula: caratula.trim(),
+  };
+}
+
+export function validateUpdateExpedientePersonasInput(
+  input: unknown,
+): UpdateExpedientePersonasInput {
+  if (!isRecord(input)) {
+    throw new AppError('Body inválido', 400);
+  }
+
+  const { personas } = input;
+
+  if (!Array.isArray(personas)) {
+    throw new AppError('Personas es obligatorio', 400);
+  }
+
+  if (personas.length === 0) {
+    throw new AppError('El expediente debe tener al menos una persona asociada', 400);
+  }
+
+  const personasValidadas = personas.map(validateExpedientePersonaInput);
+
+  const dnis = personasValidadas.map((persona) => persona.personaDni);
+  const dnisUnicos = new Set(dnis);
+
+  if (dnis.length !== dnisUnicos.size) {
+    throw new AppError('No puede haber personas repetidas en el expediente', 400);
+  }
+
+  return {
+    personas: personasValidadas,
   };
 }
 

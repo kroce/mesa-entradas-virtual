@@ -3,6 +3,8 @@ import type {
   Expediente,
   ExpedientePersona,
   ExpedienteConVinculo,
+  UpdateExpedienteInput,
+  UpdateExpedientePersonasInput,
 } from '../domain/Expediente.js';
 import { buildExpedienteClave } from '../domain/expedienteClave.js';
 import { AppError } from '../errors/AppError.js';
@@ -20,6 +22,8 @@ export class ExpedienteService {
   create(input: CreateExpedienteInput): Expediente {
     this.validateActorPrincipal(input);
     this.validatePersonasUnicas(input);
+    this.validatePersonasExistentes(input);
+    this.validateTiposVinculoExistentes(input);
 
     const clave = buildExpedienteClave(input.organismoCodigo, input.tipo, input.numero, input.anio);
 
@@ -35,11 +39,36 @@ export class ExpedienteService {
     });
   }
 
+  update(clave: string, input: UpdateExpedienteInput): Expediente {
+    const expediente = this.expedienteRepository.findByClave(clave);
+
+    if (!expediente) {
+      throw new AppError('Expediente no encontrado', 404);
+    }
+
+    return this.expedienteRepository.update(clave, input);
+  }
+
+  updatePersonas(clave: string, input: UpdateExpedientePersonasInput): ExpedientePersona[] {
+    const expediente = this.expedienteRepository.findByClave(clave);
+
+    if (!expediente) {
+      throw new AppError('Expediente no encontrado', 404);
+    }
+
+    this.validateActorPrincipal(input);
+    this.validatePersonasUnicas(input);
+    this.validatePersonasExistentes(input);
+    this.validateTiposVinculoExistentes(input);
+
+    return this.expedienteRepository.replacePersonas(clave, input.personas);
+  }
+
   findPersonasByClave(expedienteClave: string): ExpedientePersona[] {
     const expediente = this.expedienteRepository.findByClave(expedienteClave);
 
     if (!expediente) {
-      throw new Error('Expediente not found');
+      throw new AppError('Expediente no encontrado', 404);
     }
 
     return this.expedienteRepository.findPersonasByClave(expedienteClave);
@@ -49,7 +78,7 @@ export class ExpedienteService {
     return this.expedienteRepository.findByPersonaDni(personaDni);
   }
 
-  private validateActorPrincipal(input: CreateExpedienteInput): void {
+  private validateActorPrincipal(input: { personas: { tipoVinculoId: number }[] }): void {
     const actorCount = input.personas.filter(
       (persona) => persona.tipoVinculoId === ACTOR_TIPO_VINCULO_ID,
     ).length;
@@ -63,7 +92,7 @@ export class ExpedienteService {
     }
   }
 
-  private validatePersonasUnicas(input: CreateExpedienteInput): void {
+  private validatePersonasUnicas(input: { personas: { personaDni: string }[] }): void {
     const personaDnis = input.personas.map((persona) => persona.personaDni);
     const uniquePersonaDnis = new Set(personaDnis);
 
@@ -72,6 +101,24 @@ export class ExpedienteService {
         'Una persona no puede estar asociada más de una vez al mismo expediente',
         400,
       );
+    }
+  }
+
+  private validatePersonasExistentes(input: { personas: { personaDni: string }[] }): void {
+    const personaDnis = input.personas.map((persona) => persona.personaDni);
+    const allPersonasExist = this.expedienteRepository.allPersonasExist(personaDnis);
+
+    if (!allPersonasExist) {
+      throw new AppError('Una o más personas vinculadas no existen', 400);
+    }
+  }
+
+  private validateTiposVinculoExistentes(input: { personas: { tipoVinculoId: number }[] }): void {
+    const tipoVinculoIds = input.personas.map((persona) => persona.tipoVinculoId);
+    const allTiposVinculoExist = this.expedienteRepository.allTiposVinculoExist(tipoVinculoIds);
+
+    if (!allTiposVinculoExist) {
+      throw new AppError('Uno o más tipos de vínculo no existen', 400);
     }
   }
 }
