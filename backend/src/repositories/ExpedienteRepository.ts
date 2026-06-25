@@ -55,6 +55,18 @@ export class ExpedienteRepository {
     return expediente ?? null;
   }
 
+  findOrganismoCiudadCodigo(organismoCodigo: string): string | null {
+    const statement = db.prepare(`
+    SELECT ciudad_codigo AS ciudadCodigo
+    FROM organismos
+    WHERE codigo = ?
+  `);
+
+    const result = statement.get(organismoCodigo) as { ciudadCodigo: string } | undefined;
+
+    return result?.ciudadCodigo ?? null;
+  }
+
   findPersonasByClave(expedienteClave: string): ExpedientePersona[] {
     const statement = db.prepare(`
     SELECT 

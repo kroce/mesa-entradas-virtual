@@ -45,7 +45,7 @@ export function OrganismosPage() {
     };
   }, []);
 
-  async function handleCreateOrganismo(values: CreateOrganismoInput) {
+  async function handleCreateOrganismo(values: CreateOrganismoInput): Promise<boolean> {
     try {
       setIsSubmitting(true);
       setError(null);
@@ -53,8 +53,13 @@ export function OrganismosPage() {
       const organismo = await createOrganismo(values);
 
       setOrganismos((currentOrganismos) => [...currentOrganismos, organismo]);
-    } catch {
-      setError('No se pudo crear el organismo');
+
+      return true;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'No se pudo crear el organismo';
+
+      setError(errorMessage);
+      return false;
     } finally {
       setIsSubmitting(false);
     }

@@ -24,6 +24,7 @@ export class ExpedienteService {
     this.validatePersonasUnicas(input);
     this.validatePersonasExistentes(input);
     this.validateTiposVinculoExistentes(input);
+    this.validateCiudadDelOrganismo(input);
 
     const clave = buildExpedienteClave(input.organismoCodigo, input.tipo, input.numero, input.anio);
 
@@ -119,6 +120,23 @@ export class ExpedienteService {
 
     if (!allTiposVinculoExist) {
       throw new AppError('Uno o más tipos de vínculo no existen', 400);
+    }
+  }
+
+  private validateCiudadDelOrganismo(input: {
+    organismoCodigo: string;
+    ciudadCodigo: string;
+  }): void {
+    const organismoCiudadCodigo = this.expedienteRepository.findOrganismoCiudadCodigo(
+      input.organismoCodigo,
+    );
+
+    if (!organismoCiudadCodigo) {
+      throw new AppError('El organismo informado no existe', 400);
+    }
+
+    if (organismoCiudadCodigo !== input.ciudadCodigo) {
+      throw new AppError('La ciudad del expediente no coincide con la ciudad del organismo', 400);
     }
   }
 }

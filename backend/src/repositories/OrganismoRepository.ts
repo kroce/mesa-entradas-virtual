@@ -95,6 +95,18 @@ export class OrganismoRepository {
     return updatedOrganismo;
   }
 
+  hasExpedientes(codigo: string): boolean {
+    const statement = db.prepare(`
+      SELECT COUNT(*) AS count
+      FROM expedientes
+      WHERE organismo_codigo = ?
+    `);
+
+    const result = statement.get(codigo) as { count: number };
+
+    return result.count > 0;
+  }
+
   delete(codigo: string): void {
     const statement = db.prepare(`
     DELETE FROM organismos

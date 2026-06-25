@@ -45,8 +45,12 @@ export function ExpedientesPage() {
       setExpedientes((currentExpedientes) => [createdExpediente, ...currentExpedientes]);
 
       setSuccessMessage(`Expediente ${createdExpediente.clave} creado correctamente.`);
-    } catch {
-      setError('No se pudo crear el expediente.');
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'No se pudo crear el expediente.';
+
+      setError(errorMessage);
+      throw error;
     } finally {
       setIsSubmitting(false);
     }

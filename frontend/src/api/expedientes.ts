@@ -9,6 +9,10 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
 
+type ErrorResponse = {
+  message?: string;
+};
+
 export async function getExpedientes(): Promise<Expediente[]> {
   const response = await fetch(`${API_BASE_URL}/expedientes`);
 
@@ -29,7 +33,9 @@ export async function createExpediente(input: CreateExpedienteInput): Promise<Ex
   });
 
   if (!response.ok) {
-    throw new Error('No se pudo crear el expediente');
+    const errorData = (await response.json()) as ErrorResponse;
+
+    throw new Error(errorData.message ?? 'No se pudo crear el expediente');
   }
 
   return response.json() as Promise<Expediente>;

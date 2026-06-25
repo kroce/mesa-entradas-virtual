@@ -2,6 +2,10 @@ import type { CreateOrganismoInput, Organismo, UpdateOrganismoInput } from '../t
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
 
+type ErrorResponse = {
+  message?: string;
+};
+
 export async function getOrganismos(): Promise<Organismo[]> {
   const response = await fetch(`${API_BASE_URL}/organismos`);
 
@@ -22,7 +26,9 @@ export async function createOrganismo(input: CreateOrganismoInput): Promise<Orga
   });
 
   if (!response.ok) {
-    throw new Error('No se pudo crear el organismo');
+    const errorData = (await response.json()) as ErrorResponse;
+
+    throw new Error(errorData.message ?? 'No se pudo crear el organismo');
   }
 
   return response.json();

@@ -42,6 +42,15 @@ export class OrganismoService {
       throw new AppError('Organismo no encontrado', 404);
     }
 
+    const hasExpedientes = this.organismoRepository.hasExpedientes(codigo);
+
+    if (hasExpedientes) {
+      throw new AppError(
+        'No se puede eliminar el organismo porque tiene expedientes asociados',
+        409,
+      );
+    }
+
     this.organismoRepository.delete(codigo);
   }
 }

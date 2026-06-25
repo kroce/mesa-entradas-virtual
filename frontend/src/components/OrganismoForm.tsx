@@ -4,7 +4,7 @@ import type { CreateOrganismoInput } from '../types/Organismo';
 
 type OrganismoFormProps = {
   initialValues?: Partial<CreateOrganismoInput>;
-  onSubmit: (values: CreateOrganismoInput) => void | Promise<void>;
+  onSubmit: (values: CreateOrganismoInput) => void | Promise<void> | boolean | Promise<boolean>;
   isSubmitting?: boolean;
   submitLabel?: string;
 };
@@ -18,13 +18,12 @@ export function OrganismoForm({
   const [form] = Form.useForm<CreateOrganismoInput>();
 
   async function handleFinish(values: CreateOrganismoInput) {
-    await onSubmit(values);
+    const wasSuccessful = await onSubmit(values);
 
-    if (!initialValues) {
+    if (!initialValues && wasSuccessful !== false) {
       form.resetFields();
     }
   }
-
   return (
     <Form<CreateOrganismoInput>
       form={form}
