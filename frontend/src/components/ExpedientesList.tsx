@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Card, Input, Table, Typography } from 'antd';
+import { Button, Card, Input, Space, Table, Typography } from 'antd';
 import type { TableProps } from 'antd';
 
 import type { Expediente } from '../types/Expediente';
@@ -43,11 +43,16 @@ export function ExpedientesList({
       title: 'Clave',
       dataIndex: 'clave',
       key: 'clave',
+      width: 150,
+      render: (clave: string) => (
+        <span style={{ whiteSpace: 'normal', fontWeight: 500 }}>{clave}</span>
+      ),
     },
     {
       title: 'Carátula',
       dataIndex: 'caratula',
       key: 'caratula',
+      width: 280,
     },
     {
       title: 'Organismo',
@@ -78,19 +83,19 @@ export function ExpedientesList({
       title: 'Acciones',
       key: 'acciones',
       align: 'center',
-      width: 160,
+      width: 170,
       render: (_, expediente) => (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <Space orientation="vertical" size={0}>
           <Button type="link" style={{ padding: 0 }} onClick={() => onViewPersonas(expediente)}>
             Ver personas
           </Button>
 
           {onEditExpediente && (
             <Button type="link" style={{ padding: 0 }} onClick={() => onEditExpediente(expediente)}>
-              Editar
+              Editar expediente
             </Button>
           )}
-        </div>
+        </Space>
       ),
     },
   ];

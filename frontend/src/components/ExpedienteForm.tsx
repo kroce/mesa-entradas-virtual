@@ -148,56 +148,77 @@ export function ExpedienteForm({
           }))}
         />
       </Form.Item>
-
-      <Form.List name="personas">
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(({ key, name, ...restField }) => (
-              <Space key={key} align="baseline" wrap>
-                <Form.Item
-                  {...restField}
-                  label="Persona vinculada"
-                  name={[name, 'personaDni']}
-                  rules={[{ required: true, message: 'Seleccioná una persona' }]}
+      <div style={{ marginTop: 8 }}>
+        <Form.List name="personas">
+          {(fields, { add, remove }) => (
+            <>
+              {fields.map(({ key, name, ...restField }) => (
+                <Space
+                  key={key}
+                  align="baseline"
+                  wrap
+                  style={{
+                    width: '100%',
+                    justifyContent: 'flex-start',
+                  }}
                 >
-                  <Select
-                    showSearch={{ optionFilterProp: 'label' }}
-                    style={{ width: 280 }}
-                    placeholder="Buscar persona"
-                    options={personas.map((persona) => ({
-                      value: persona.dni,
-                      label: `${persona.dni} - ${persona.apellido}, ${persona.nombre}`,
-                    }))}
-                  />
-                </Form.Item>
+                  <Form.Item
+                    {...restField}
+                    label="Persona vinculada"
+                    name={[name, 'personaDni']}
+                    rules={[{ required: true, message: 'Seleccioná una persona' }]}
+                  >
+                    <Select
+                      showSearch={{ optionFilterProp: 'label' }}
+                      style={{ width: 280 }}
+                      placeholder="Buscar persona"
+                      options={personas.map((persona) => ({
+                        value: persona.dni,
+                        label: `${persona.dni} - ${persona.apellido}, ${persona.nombre}`,
+                      }))}
+                    />
+                  </Form.Item>
 
-                <Form.Item
-                  {...restField}
-                  label="Vínculo"
-                  name={[name, 'tipoVinculoId']}
-                  rules={[{ required: true, message: 'Seleccioná un vínculo' }]}
+                  <Form.Item
+                    {...restField}
+                    label="Vínculo"
+                    name={[name, 'tipoVinculoId']}
+                    rules={[{ required: true, message: 'Seleccioná un vínculo' }]}
+                  >
+                    <Select style={{ width: 180 }} placeholder="Vínculo" options={vinculoOptions} />
+                  </Form.Item>
+
+                  <Form.Item label=" " colon={false}>
+                    <Button danger onClick={() => remove(name)}>
+                      Quitar
+                    </Button>
+                  </Form.Item>
+                </Space>
+              ))}
+
+              <Form.Item style={{ marginBottom: 16 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    width: '100%',
+                  }}
                 >
-                  <Select style={{ width: 180 }} placeholder="Vínculo" options={vinculoOptions} />
-                </Form.Item>
+                  <Button type="dashed" htmlType="button" onClick={() => add()}>
+                    Agregar persona vinculada
+                  </Button>
+                </div>
+              </Form.Item>
+            </>
+          )}
+        </Form.List>
+      </div>
 
-                <Button danger onClick={() => remove(name)}>
-                  Quitar
-                </Button>
-              </Space>
-            ))}
-
-            <Form.Item>
-              <Button type="dashed" onClick={() => add()}>
-                Agregar persona vinculada
-              </Button>
-            </Form.Item>
-          </>
-        )}
-      </Form.List>
-
-      <Button type="primary" htmlType="submit" loading={isSubmitting}>
-        Crear expediente
-      </Button>
+      <Form.Item style={{ textAlign: 'right', marginBottom: 0 }}>
+        <Button type="primary" htmlType="submit" loading={isSubmitting}>
+          Crear expediente
+        </Button>
+      </Form.Item>
     </Form>
   );
 }

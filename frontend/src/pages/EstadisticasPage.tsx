@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Card, Space, Spin, Table, Typography } from 'antd';
+import { Alert, Card, Col, Row, Space, Spin, Statistic, Table, Typography } from 'antd';
 import type { TableProps } from 'antd';
 
 import { getEstadisticas } from '../api/estadisticas';
@@ -94,6 +94,12 @@ export function EstadisticasPage() {
     },
   ];
 
+  const expedientesPorAnio = estadisticas?.expedientesPorAnio ?? [];
+  const expedientesPorCiudad = estadisticas?.expedientesPorCiudad ?? [];
+  const expedientesPorFuero = estadisticas?.expedientesPorFuero ?? [];
+
+  const totalExpedientes = expedientesPorAnio.reduce((total, item) => total + item.total, 0);
+
   if (isLoading) {
     return <Spin />;
   }
@@ -105,37 +111,66 @@ export function EstadisticasPage() {
       <Card>
         <Title level={2}>Estadísticas</Title>
 
-        <Space orientation="vertical" size="large" style={{ width: '100%' }}>
-          <Card type="inner" title="Expedientes por año">
-            <Table
-              className="large-table"
-              rowKey="anio"
-              columns={anioColumns}
-              dataSource={estadisticas?.expedientesPorAnio ?? []}
-              pagination={false}
-            />
-          </Card>
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col xs={24} md={8}>
+            <Card>
+              <Statistic title="Total de expedientes" value={totalExpedientes} />
+            </Card>
+          </Col>
 
-          <Card type="inner" title="Expedientes por ciudad">
-            <Table
-              className="large-table"
-              rowKey="ciudadCodigo"
-              columns={ciudadColumns}
-              dataSource={estadisticas?.expedientesPorCiudad ?? []}
-              pagination={false}
-            />
-          </Card>
+          <Col xs={24} md={8}>
+            <Card>
+              <Statistic title="Años registrados" value={expedientesPorAnio.length} />
+            </Card>
+          </Col>
 
-          <Card type="inner" title="Expedientes por fuero">
-            <Table
-              className="large-table"
-              rowKey="fueroCodigo"
-              columns={fueroColumns}
-              dataSource={estadisticas?.expedientesPorFuero ?? []}
-              pagination={false}
-            />
-          </Card>
-        </Space>
+          <Col xs={24} md={8}>
+            <Card>
+              <Statistic title="Ciudades con expedientes" value={expedientesPorCiudad.length} />
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={12}>
+            <Card type="inner" title="Por año">
+              <Table
+                className="large-table"
+                rowKey="anio"
+                columns={anioColumns}
+                dataSource={expedientesPorAnio}
+                pagination={false}
+                size="small"
+              />
+            </Card>
+          </Col>
+
+          <Col xs={24} lg={12}>
+            <Card type="inner" title="Por ciudad">
+              <Table
+                className="large-table"
+                rowKey="ciudadCodigo"
+                columns={ciudadColumns}
+                dataSource={expedientesPorCiudad}
+                pagination={false}
+                size="small"
+              />
+            </Card>
+          </Col>
+
+          <Col xs={24}>
+            <Card type="inner" title="Por fuero">
+              <Table
+                className="large-table"
+                rowKey="fueroCodigo"
+                columns={fueroColumns}
+                dataSource={expedientesPorFuero}
+                pagination={false}
+                size="small"
+              />
+            </Card>
+          </Col>
+        </Row>
       </Card>
     </Space>
   );
