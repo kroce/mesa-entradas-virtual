@@ -1,10 +1,10 @@
 # Mesa de Entradas Virtual
 
-Aplicación web para registrar expedientes en una Mesa de Entradas Virtual.
+Aplicación web para registrar y administrar expedientes de una Mesa de Entradas Virtual.
 
-El proyecto utiliza una arquitectura cliente-servidor, con backend en Node.js/Express y frontend en React.
+El proyecto fue desarrollado como challenge para el concurso de Programador Web del Poder Judicial. Implementa una arquitectura cliente-servidor con backend en Node.js/Express y frontend en React.
 
-## Stack
+## Stack utilizado
 
 ### Backend
 
@@ -12,6 +12,7 @@ El proyecto utiliza una arquitectura cliente-servidor, con backend en Node.js/Ex
 - TypeScript
 - Express
 - SQLite
+- better-sqlite3
 
 ### Frontend
 
@@ -29,59 +30,35 @@ mesa-entradas-virtual/
   README.md
 ```
 
-## Funcionalidades requeridas
+## Requisitos previos
 
-El sistema debe permitir:
+Para ejecutar el proyecto se necesita tener instalado:
 
-- Registrar expedientes con una persona principal con vínculo ACTOR.
-- Asociar varias personas a un expediente con vínculos DEMANDADO, CONDENADO o VICTIMA.
-- Administrar y listar los expedientes asociados a una persona.
-- Administrar y listar las personas asociadas a un expediente.
-- Administrar y listar organismos.
-- Mostrar estadísticas de expedientes registrados por año, ciudad y fuero.
+- Node.js
+- npm
 
-## Decisiones de diseño
-
-- Se utiliza una arquitectura cliente-servidor.
-- El frontend y el backend viven en el mismo repositorio para simplificar la entrega y la puesta en marcha.
-- El backend se organiza en capas simples:
-  - `routes`: definición de endpoints.
-  - `controllers`: manejo de request/response.
-  - `services`: reglas de negocio y coordinación de casos de uso.
-  - `repositories`: acceso a datos.
-  - `domain`: tipos principales del modelo.
-
-- Se utiliza SQLite por practicidad y porque el dominio requiere relaciones entre entidades.
-- Las ciudades, fueros y tipos de vínculo se modelan como catálogos para evitar valores hardcodeados en la lógica de negocio.
-- La relación entre expedientes y personas se modela como una relación muchos a muchos mediante la tabla `expediente_personas`.
-- La regla de un único ACTOR principal por expediente se refuerza desde la lógica de negocio y desde la base de datos.
-
-## Estado de implementación
-
-Implementado en backend:
-
-- Alta y listado de personas.
-- Alta y listado de organismos.
-- Alta y listado de expedientes.
-- Asociación de personas a expedientes mediante tipos de vínculo.
-- Consulta de personas asociadas a un expediente.
-- Consulta de expedientes asociados a una persona, incluyendo el vínculo correspondiente.
-- Estadísticas de expedientes agrupadas por año, ciudad y fuero.
-
-Pendiente / en desarrollo:
-
-- Interfaz frontend para operar los flujos principales.
-- Visualización de estadísticas en tablas.
-
-## Posibles mejoras
-
-- Permitir agregar, modificar o quitar personas asociadas a un expediente luego de su creación.
+Se recomienda usar una versión actual de Node.js.
 
 ## Puesta en marcha
 
-### Backend
+El proyecto tiene dos aplicaciones separadas:
 
-Desde la carpeta `backend`, instalar dependencias:
+- Backend: API REST.
+- Frontend: aplicación web React.
+
+Deben ejecutarse en terminales separadas.
+
+---
+
+## Backend
+
+Ingresar a la carpeta del backend:
+
+```bash
+cd backend
+```
+
+Instalar dependencias:
 
 ```bash
 npm install
@@ -99,10 +76,10 @@ Por defecto, el backend queda disponible en:
 http://localhost:3000
 ```
 
-El puerto puede modificarse usando la variable de entorno `PORT`. Por ejemplo:
+La API queda disponible bajo el prefijo:
 
-```bash
-PORT=3001 npm run dev
+```txt
+http://localhost:3000/api
 ```
 
 Endpoint de verificación:
@@ -119,12 +96,203 @@ Respuesta esperada:
 }
 ```
 
-### Comandos útiles
+### Puerto del backend
 
-Verificar compilación de TypeScript:
+El puerto puede modificarse usando la variable de entorno `PORT`.
+
+Ejemplo:
+
+```bash
+PORT=3001 npm run dev
+```
+
+En ese caso, también debe configurarse el frontend para apuntar al nuevo puerto mediante `VITE_API_BASE_URL`.
+
+---
+
+## Frontend
+
+En otra terminal, ingresar a la carpeta del frontend:
+
+```bash
+cd frontend
+```
+
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Levantar la aplicación en modo desarrollo:
+
+```bash
+npm run dev
+```
+
+Por defecto, Vite muestra en consola la URL local del frontend. Usualmente:
+
+```txt
+http://localhost:5173
+```
+
+El frontend consume por defecto la API en:
+
+```txt
+http://localhost:3000/api
+```
+
+### Variable opcional del frontend
+
+Si el backend corre en otro puerto o en otra URL, crear un archivo `.env` dentro de `frontend/` con:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000/api
+```
+
+Ejemplo si el backend corre en el puerto `3001`:
+
+```env
+VITE_API_BASE_URL=http://localhost:3001/api
+```
+
+---
+
+## Base de datos SQLite
+
+El backend utiliza SQLite.
+
+La base se inicializa a partir del archivo `backend/src/database/schema.sql`, que contiene:
+
+- creación de tablas;
+- creación de índices;
+- carga inicial de catálogos;
+- datos de prueba.
+
+Los datos de prueba incluidos permiten validar los flujos principales de la aplicación y las estadísticas.
+
+Incluyen:
+
+- 3 ciudades;
+- 4 fueros;
+- 4 tipos de vínculo;
+- 8 organismos;
+- 12 personas;
+- 15 expedientes;
+- vínculos entre expedientes y personas.
+
+### Reinicializar la base de datos
+
+Si se desea regenerar la base desde cero con los datos de prueba, eliminar el archivo SQLite local generado por el backend y volver a iniciar el servidor.
+
+Para localizarlo:
+
+```bash
+find backend -name "*.sqlite" -o -name "*.sqlite3" -o -name "*.db"
+```
+
+Luego eliminar el archivo encontrado. Por ejemplo:
+
+```bash
+rm backend/data/database.sqlite
+```
+
+Después volver a levantar el backend:
+
+```bash
+cd backend
+npm run dev
+```
+
+Al iniciar nuevamente, el backend vuelve a crear la base y carga los datos definidos en `schema.sql`.
+
+## Modelo de datos
+
+El siguiente diagrama resume las entidades principales y sus relaciones.
+
+<details>
+<summary>Ver diagrama del modelo de datos</summary>
+
+```mermaid
+erDiagram
+  CIUDADES {
+    TEXT codigo PK
+    TEXT nombre UK "NOT NULL"
+  }
+
+FUEROS {
+TEXT codigo PK
+TEXT nombre UK "NOT NULL"
+}
+
+ORGANISMOS {
+TEXT codigo PK
+TEXT nombre "NOT NULL"
+TEXT caratula "NOT NULL"
+TEXT ciudad_codigo FK "NOT NULL"
+TEXT fuero_codigo FK "NOT NULL"
+}
+
+PERSONAS {
+TEXT dni PK
+TEXT apellido "NOT NULL"
+TEXT nombre "NOT NULL"
+}
+
+TIPOS_VINCULO {
+INTEGER id PK
+TEXT descripcion UK "NOT NULL"
+}
+
+EXPEDIENTES {
+TEXT clave PK
+TEXT organismo_codigo FK "NOT NULL"
+TEXT tipo "NOT NULL"
+INTEGER numero "NOT NULL"
+INTEGER anio "NOT NULL"
+TEXT caratula "NOT NULL"
+TEXT ciudad_codigo FK "NOT NULL"
+}
+
+EXPEDIENTE_PERSONAS {
+TEXT expediente_clave PK, FK "NOT NULL"
+TEXT persona_dni PK, FK "NOT NULL"
+INTEGER tipo_vinculo_id FK "NOT NULL"
+}
+
+CIUDADES ||--o{ ORGANISMOS : "tiene"
+FUEROS ||--o{ ORGANISMOS : "tiene"
+
+ORGANISMOS ||--o{ EXPEDIENTES : "tramita"
+CIUDADES ||--o{ EXPEDIENTES : "corresponde"
+
+EXPEDIENTES ||--o{ EXPEDIENTE_PERSONAS : "incluye"
+PERSONAS ||--o{ EXPEDIENTE_PERSONAS : "participa"
+TIPOS_VINCULO ||--o{ EXPEDIENTE_PERSONAS : "clasifica"
+```
+
+</details>
+
+## Comandos útiles
+
+### Backend
+
+Desde la carpeta `backend`:
+
+```bash
+npm run dev
+```
+
+Compilar TypeScript:
 
 ```bash
 npm run build
+```
+
+Ejecutar la versión compilada:
+
+```bash
+npm start
 ```
 
 Ejecutar linter:
@@ -133,8 +301,335 @@ Ejecutar linter:
 npm run lint
 ```
 
-Formatear el código:
+Formatear código:
 
 ```bash
 npm run format
 ```
+
+### Frontend
+
+Desde la carpeta `frontend`:
+
+```bash
+npm run dev
+```
+
+Compilar frontend:
+
+```bash
+npm run build
+```
+
+Previsualizar build de producción:
+
+```bash
+npm run preview
+```
+
+Ejecutar linter:
+
+```bash
+npm run lint
+```
+
+---
+
+## Funcionalidades implementadas
+
+### Expedientes
+
+- Alta de expedientes.
+- Listado de expedientes.
+- Edición de carátula/título del expediente.
+- Generación de clave con formato:
+
+```txt
+ORG TIPO NRO/AÑO
+```
+
+Ejemplo:
+
+```txt
+JNQFA EXP 1/2026
+```
+
+- Restricción para evitar expedientes duplicados con la misma combinación de organismo, tipo, número y año.
+
+### Personas asociadas a expedientes
+
+- Registro de expediente con actor principal obligatorio.
+- Asociación de varias personas a un expediente.
+- Tipos de vínculo disponibles:
+  - ACTOR
+  - DEMANDADO
+  - CONDENADO
+  - VICTIMA
+
+- Listado de personas asociadas a un expediente.
+- Edición de personas asociadas a un expediente.
+- Alta de nueva persona vinculada a un expediente existente.
+- Baja de persona vinculada a un expediente existente.
+- Modificación del vínculo de una persona asociada.
+- Cambio de actor principal.
+- Restricción para que un expediente tenga exactamente un actor principal.
+- Restricción para que una persona no esté repetida dentro del mismo expediente.
+
+### Personas
+
+- Alta de personas.
+- Listado de personas.
+- Edición de personas.
+- Consulta de expedientes asociados a una persona, incluyendo el vínculo correspondiente.
+
+### Organismos
+
+- Alta de organismos.
+- Listado de organismos.
+- Edición de organismos.
+- Eliminación de organismos.
+- Validación del formato del código de organismo.
+
+El código de organismo sigue el formato:
+
+```txt
+J<CIUDAD><FUERO>
+```
+
+Ejemplos:
+
+```txt
+JNQFA
+JZACI
+JJUEJ
+```
+
+Donde:
+
+- `J` identifica organismo judicial;
+- `NQ`, `ZA`, `JU` identifican ciudad;
+- `FA`, `CI`, `LA`, `EJ` identifican fuero.
+
+### Estadísticas
+
+- Estadísticas de expedientes por año.
+- Estadísticas de expedientes por ciudad.
+- Estadísticas de expedientes por fuero.
+- Visualización en tablas desde el frontend.
+
+---
+
+## Endpoints principales
+
+### Health check
+
+```txt
+GET /api/health
+```
+
+### Personas
+
+```txt
+GET /api/personas
+POST /api/personas
+PATCH /api/personas/:dni
+GET /api/personas/:dni/expedientes
+```
+
+### Organismos
+
+```txt
+GET /api/organismos
+POST /api/organismos
+PATCH /api/organismos/:codigo
+DELETE /api/organismos/:codigo
+```
+
+### Expedientes
+
+```txt
+GET /api/expedientes
+POST /api/expedientes
+PATCH /api/expedientes/:clave
+GET /api/expedientes/:clave/personas
+PATCH /api/expedientes/:clave/personas
+```
+
+Importante: como la clave del expediente contiene espacios y `/`, desde clientes HTTP debe enviarse codificada en la URL.
+
+Ejemplo en frontend:
+
+```ts
+encodeURIComponent(clave);
+```
+
+### Estadísticas
+
+```txt
+GET /api/estadisticas
+```
+
+---
+
+## Decisiones de diseño
+
+### Arquitectura cliente-servidor
+
+Se separó el frontend del backend para mantener responsabilidades claras:
+
+- el backend expone una API REST;
+- el frontend consume esa API y resuelve la interacción con el usuario.
+
+Ambos proyectos viven en el mismo repositorio para simplificar la entrega y la puesta en marcha.
+
+### Organización del backend
+
+El backend se organizó en capas simples:
+
+```txt
+routes       → definición de endpoints
+controllers  → manejo de request/response
+validations  → validación de entrada
+services     → reglas de negocio
+repositories → acceso a SQLite
+domain       → tipos y funciones del dominio
+```
+
+La intención fue mantener una estructura clara sin sobrediseñar.
+
+### Validaciones
+
+Se separaron dos tipos de validación:
+
+1. Validaciones de entrada:
+   - forma del body;
+   - campos obligatorios;
+   - tipos correctos;
+   - strings no vacíos;
+   - números válidos.
+
+2. Validaciones de negocio:
+   - existencia de expediente;
+   - existencia de personas;
+   - existencia de tipos de vínculo;
+   - actor principal obligatorio;
+   - un único actor principal por expediente;
+   - persona no repetida dentro del mismo expediente.
+
+### SQLite
+
+Se utilizó SQLite por practicidad para el challenge y porque el dominio requería relaciones entre entidades.
+
+El modelo incluye claves foráneas e índices para reforzar reglas importantes.
+
+### Catálogos
+
+Las ciudades, fueros y tipos de vínculo se modelaron como tablas de catálogo.
+
+Esto evita depender de strings sueltos en la lógica de negocio y permite validar datos contra la base.
+
+### Relación expediente-persona
+
+La relación entre expedientes y personas se modeló como muchos a muchos mediante la tabla:
+
+```txt
+expediente_personas
+```
+
+Esa tabla guarda:
+
+- expediente;
+- persona;
+- tipo de vínculo.
+
+### Actor principal
+
+La regla de que un expediente debe tener un único actor principal se refuerza en dos lugares:
+
+- en el service, mediante validaciones de negocio;
+- en SQLite, mediante un índice único parcial sobre `expediente_personas`.
+
+### Edición de personas asociadas
+
+La edición de personas asociadas a un expediente se implementó como reemplazo completo de la lista de vínculos.
+
+Esto permite resolver con una sola operación:
+
+- agregar personas;
+- quitar personas;
+- cambiar vínculos;
+- cambiar actor principal.
+
+La operación se realiza dentro de una transacción.
+
+### Edición de expediente
+
+La clave del expediente no se modifica una vez creado.
+
+La clave identifica al expediente, por lo que modificar organismo, tipo, número o año implicaría cambiar su identidad. Por ese motivo se permite editar la carátula/título, pero no la clave.
+
+---
+
+## Dificultades encontradas
+
+### Modelado del actor principal
+
+Una dificultad fue decidir cómo representar al actor principal.
+
+Se resolvió modelarlo como una persona asociada al expediente con tipo de vínculo `ACTOR`, en lugar de guardarlo como un campo separado en la tabla `expedientes`.
+
+Esto permitió mantener un único modelo de vínculos entre personas y expedientes.
+
+### Garantizar un único actor
+
+Otra dificultad fue garantizar que un expediente no tuviera más de un actor principal.
+
+Se resolvió con validaciones en la capa de service y con un índice único parcial en SQLite.
+
+### Edición de personas asociadas
+
+La edición posterior de personas asociadas requería cubrir altas, bajas y modificaciones de vínculos.
+
+Se resolvió con un endpoint específico:
+
+```txt
+PATCH /api/expedientes/:clave/personas
+```
+
+Este endpoint reemplaza la composición completa de personas asociadas al expediente dentro de una transacción.
+
+### Clave del expediente en URL
+
+La clave del expediente contiene espacios y una barra `/`, por ejemplo:
+
+```txt
+JNQFA EXP 1/2026
+```
+
+Esto requiere codificar la clave al enviarla por URL.
+
+En el frontend se utiliza:
+
+```ts
+encodeURIComponent(clave);
+```
+
+---
+
+## Alcance y limitaciones
+
+- No se implementó baja física de expedientes.
+- No se implementó baja física de personas.
+- La gestión de personas dentro de un expediente sí permite quitar vínculos, lo que cubre la baja de una persona asociada a un expediente.
+- La clave del expediente no se modifica luego de la creación.
+- La aplicación no incluye autenticación, ya que no fue requerida para el challenge.
+- La aplicación no incluye paginación backend; el listado se resuelve con carga completa y filtrado local en frontend.
+- La base SQLite se utiliza localmente para simplificar la puesta en marcha.
+
+---
+
+## Estado de dockerización
+
+La aplicación no se entrega dockerizada en esta versión.
+
+La puesta en marcha se realiza mediante los comandos descriptos en este README para backend y frontend.
