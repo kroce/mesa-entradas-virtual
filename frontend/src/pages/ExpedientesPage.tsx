@@ -8,6 +8,7 @@ import type { CreateExpedienteInput, Expediente, ExpedientePersona } from '../ty
 import type { Organismo } from '../types/Organismo';
 import type { Persona } from '../types/Persona';
 
+import { ExpedienteEditModal } from '../components/ExpedienteEditModal';
 import { ExpedientesList } from '../components/ExpedientesList';
 import { ExpedientePersonasModal } from '../components/ExpedientePersonasModal';
 import { useAutoClearMessage } from '../hooks/useAutoClearMessage';
@@ -20,6 +21,7 @@ export function ExpedientesPage() {
   const [personasDisponibles, setPersonasDisponibles] = useState<Persona[]>([]);
   const [personasAsociadas, setPersonasAsociadas] = useState<ExpedientePersona[]>([]);
   const [selectedExpediente, setSelectedExpediente] = useState<Expediente | null>(null);
+  const [editingExpediente, setEditingExpediente] = useState<Expediente | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingPersonas, setIsLoadingPersonas] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -132,6 +134,7 @@ export function ExpedientesPage() {
         expedientes={expedientes}
         isLoading={isLoading}
         onViewPersonas={handleViewPersonas}
+        onEditExpediente={setEditingExpediente}
       />
 
       <ExpedientePersonasModal
@@ -141,6 +144,21 @@ export function ExpedientesPage() {
         onClose={() => {
           setSelectedExpediente(null);
           setPersonasAsociadas([]);
+        }}
+      />
+
+      <ExpedienteEditModal
+        expediente={editingExpediente}
+        onClose={() => setEditingExpediente(null)}
+        onUpdated={(updatedExpediente) => {
+          setExpedientes((currentExpedientes) =>
+            currentExpedientes.map((expediente) =>
+              expediente.clave === updatedExpediente.clave ? updatedExpediente : expediente,
+            ),
+          );
+
+          setSuccessMessage(`Expediente ${updatedExpediente.clave} actualizado correctamente.`);
+          setEditingExpediente(null);
         }}
       />
     </Space>

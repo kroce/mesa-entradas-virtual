@@ -10,9 +10,15 @@ type ExpedientesListProps = {
   expedientes: Expediente[];
   isLoading: boolean;
   onViewPersonas: (expediente: Expediente) => void;
+  onEditExpediente?: (expediente: Expediente) => void;
 };
 
-export function ExpedientesList({ expedientes, isLoading, onViewPersonas }: ExpedientesListProps) {
+export function ExpedientesList({
+  expedientes,
+  isLoading,
+  onViewPersonas,
+  onEditExpediente,
+}: ExpedientesListProps) {
   const [searchText, setSearchText] = useState('');
   const normalizedSearchText = searchText.trim().toLowerCase();
   const shouldFilter = normalizedSearchText.length >= 3;
@@ -72,11 +78,19 @@ export function ExpedientesList({ expedientes, isLoading, onViewPersonas }: Expe
       title: 'Acciones',
       key: 'acciones',
       align: 'center',
-      width: 140,
+      width: 160,
       render: (_, expediente) => (
-        <Button type="link" style={{ padding: 0 }} onClick={() => onViewPersonas(expediente)}>
-          Ver personas
-        </Button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <Button type="link" style={{ padding: 0 }} onClick={() => onViewPersonas(expediente)}>
+            Ver personas
+          </Button>
+
+          {onEditExpediente && (
+            <Button type="link" style={{ padding: 0 }} onClick={() => onEditExpediente(expediente)}>
+              Editar
+            </Button>
+          )}
+        </div>
       ),
     },
   ];
