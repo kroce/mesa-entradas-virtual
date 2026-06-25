@@ -10,6 +10,7 @@ import type { Persona } from '../types/Persona';
 
 import { ExpedienteEditModal } from '../components/ExpedienteEditModal';
 import { ExpedientesList } from '../components/ExpedientesList';
+import { ExpedientePersonasEditModal } from '../components/ExpedientePersonasEditModal';
 import { ExpedientePersonasModal } from '../components/ExpedientePersonasModal';
 import { useAutoClearMessage } from '../hooks/useAutoClearMessage';
 
@@ -17,6 +18,9 @@ const { Title } = Typography;
 
 export function ExpedientesPage() {
   const [expedientes, setExpedientes] = useState<Expediente[]>([]);
+  const [editingPersonasExpediente, setEditingPersonasExpediente] = useState<Expediente | null>(
+    null,
+  );
   const [organismos, setOrganismos] = useState<Organismo[]>([]);
   const [personasDisponibles, setPersonasDisponibles] = useState<Persona[]>([]);
   const [personasAsociadas, setPersonasAsociadas] = useState<ExpedientePersona[]>([]);
@@ -144,6 +148,27 @@ export function ExpedientesPage() {
         onClose={() => {
           setSelectedExpediente(null);
           setPersonasAsociadas([]);
+        }}
+        onEditPersonas={(expediente) => {
+          setEditingPersonasExpediente(expediente);
+          setSelectedExpediente(null);
+        }}
+      />
+
+      <ExpedientePersonasEditModal
+        expediente={editingPersonasExpediente}
+        personasAsociadas={personasAsociadas}
+        personasDisponibles={personasDisponibles}
+        onClose={() => {
+          setEditingPersonasExpediente(null);
+          setPersonasAsociadas([]);
+        }}
+        onUpdated={(updatedPersonas) => {
+          setPersonasAsociadas(updatedPersonas);
+          setSuccessMessage(
+            `Personas del expediente ${editingPersonasExpediente?.clave} actualizadas correctamente.`,
+          );
+          setEditingPersonasExpediente(null);
         }}
       />
 

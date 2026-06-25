@@ -1,4 +1,4 @@
-import { Modal, Table } from 'antd';
+import { Button, Modal, Table } from 'antd';
 
 import type { Expediente } from '../types/Expediente';
 
@@ -14,6 +14,7 @@ type ExpedientePersonasModalProps = {
   personas: PersonaAsociada[];
   isLoading: boolean;
   onClose: () => void;
+  onEditPersonas?: (expediente: Expediente) => void;
 };
 
 export function ExpedientePersonasModal({
@@ -21,6 +22,7 @@ export function ExpedientePersonasModal({
   personas,
   isLoading,
   onClose,
+  onEditPersonas,
 }: ExpedientePersonasModalProps) {
   return (
     <Modal
@@ -31,6 +33,13 @@ export function ExpedientePersonasModal({
       footer={null}
       width={800}
     >
+      {expediente && onEditPersonas && (
+        <div style={{ marginBottom: 16, textAlign: 'right' }}>
+          <Button type="primary" onClick={() => onEditPersonas(expediente)}>
+            Editar personas
+          </Button>
+        </div>
+      )}
       <Table
         className="large-table"
         rowKey="dni"
