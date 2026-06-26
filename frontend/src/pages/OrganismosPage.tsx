@@ -23,6 +23,7 @@ export function OrganismosPage() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   useAutoClearMessage(successMessage, setSuccessMessage);
+  useAutoClearMessage(error, setError);
 
   useEffect(() => {
     let isMounted = true;
@@ -82,8 +83,10 @@ export function OrganismosPage() {
         currentOrganismos.filter((organismo) => organismo.codigo !== codigo),
       );
       setSuccessMessage(`Organismo ${codigo} eliminado correctamente.`);
-    } catch {
-      setError('No se pudo eliminar el organismo');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'No se pudo eliminar el organismo';
+
+      setError(errorMessage);
     }
   }
 

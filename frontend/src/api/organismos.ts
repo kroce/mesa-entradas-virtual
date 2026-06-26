@@ -40,7 +40,9 @@ export async function deleteOrganismo(codigo: string): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error('No se pudo eliminar el organismo');
+    const errorData = (await response.json()) as ErrorResponse;
+
+    throw new Error(errorData.message ?? 'No se pudo eliminar el organismo');
   }
 }
 
