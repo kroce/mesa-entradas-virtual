@@ -5,6 +5,7 @@ import { createPersona, getPersonas, updatePersona } from '../api/personas';
 import { PersonaForm } from '../components/PersonaForm';
 import { PersonasList } from '../components/PersonasList';
 import { ExpedientesPorPersona } from '../components/ExpedientesPorPersona';
+import { useAutoClearMessage } from '../hooks/useAutoClearMessage';
 
 import type { CreatePersonaInput, Persona, UpdatePersonaInput } from '../types/Persona';
 
@@ -18,6 +19,8 @@ export function PersonasPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  useAutoClearMessage(successMessage, setSuccessMessage);
 
   async function handleCreatePersona(input: CreatePersonaInput) {
     setIsSubmitting(true);
