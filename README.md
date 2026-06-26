@@ -685,11 +685,12 @@ Si el organismo ya está referenciado por expedientes, la API responde con un er
 
 ## Alcance y limitaciones
 
+- Las listas entre pestañas no se refrescan automáticamente después de crear o editar entidades relacionadas.
+  Por ejemplo, si se crea un organismo en la pestaña `Organismos`, puede no aparecer de inmediato en formularios ya abiertos o en otras pestañas como `Expedientes`.
+  Para ver los datos actualizados, refrescar el navegador.
 - No se implementó baja física de expedientes.
 - No se implementó baja física de personas.
 - La gestión de personas dentro de un expediente sí permite quitar vínculos, lo que cubre la baja de una persona asociada a un expediente.
 - La clave del expediente no se modifica luego de la creación.
 - La aplicación no incluye autenticación, ya que no fue requerida para el challenge.
 - La aplicación no incluye paginación backend; el listado se resuelve con carga completa y filtrado local en frontend.
-- La base SQLite se utiliza localmente para simplificar la puesta en marcha.
-- En Docker, la base SQLite se persiste mediante un volumen.
