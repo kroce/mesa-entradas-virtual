@@ -22,6 +22,8 @@ export function ExpedientesList({
   const [searchText, setSearchText] = useState('');
   const normalizedSearchText = searchText.trim().toLowerCase();
   const shouldFilter = normalizedSearchText.length >= 3;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const filteredExpedientes = expedientes.filter((expediente) => {
     if (!shouldFilter) {
@@ -109,7 +111,10 @@ export function ExpedientesList({
           placeholder="Buscar por clave, carátula, organismo, ciudad, año o número. Mínimo 3 caracteres"
           allowClear
           value={searchText}
-          onChange={(event) => setSearchText(event.target.value)}
+          onChange={(event) => {
+            setSearchText(event.target.value);
+            setCurrentPage(1);
+          }}
         />
       </div>
 
@@ -120,9 +125,14 @@ export function ExpedientesList({
         columns={columns}
         dataSource={filteredExpedientes}
         pagination={{
-          pageSize: 10,
+          current: currentPage,
+          pageSize,
           showSizeChanger: true,
           pageSizeOptions: [10, 20, 50],
+          onChange: (page, nextPageSize) => {
+            setCurrentPage(page);
+            setPageSize(nextPageSize);
+          },
         }}
       />
     </Card>
