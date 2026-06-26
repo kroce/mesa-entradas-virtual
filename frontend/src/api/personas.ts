@@ -1,6 +1,6 @@
 import type { CreatePersonaInput, Persona, UpdatePersonaInput } from '../types/Persona';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
 export async function getPersonas(): Promise<Persona[]> {
   const response = await fetch(`${API_BASE_URL}/personas`);

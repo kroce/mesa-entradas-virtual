@@ -142,7 +142,7 @@ Ejemplo:
 PORT=3001 npm run dev
 ```
 
-En ese caso, también debe configurarse el frontend para apuntar al nuevo puerto mediante `VITE_API_BASE_URL`.
+En ese caso, también debe configurarse el proxy del frontend para apuntar al nuevo puerto mediante `VITE_DEV_PROXY_TARGET`.
 
 ---
 
@@ -159,21 +159,27 @@ http://localhost:5173
 El frontend consume por defecto la API en:
 
 ```txt
-http://localhost:3000/api
+/api
 ```
 
 ### Variable opcional del frontend
 
+En desarrollo, Vite hace proxy de `/api` hacia el backend. Por defecto, ese proxy apunta a:
+
+```txt
+http://localhost:3000
+```
+
 Si el backend corre en otro puerto o en otra URL, crear un archivo `.env` dentro de `frontend/` con:
 
 ```env
-VITE_API_BASE_URL=http://localhost:3000/api
+VITE_DEV_PROXY_TARGET=http://localhost:3000
 ```
 
 Ejemplo si el backend corre en el puerto `3001`:
 
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_DEV_PROXY_TARGET=http://localhost:3001
 ```
 
 ---
