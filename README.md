@@ -37,7 +37,7 @@ El proyecto puede ejecutarse de dos maneras.
 
 Para ejecución local:
 
-- Node.js
+- Node.js 22
 - npm
 
 Para ejecución con Docker:
@@ -45,7 +45,7 @@ Para ejecución con Docker:
 - Docker
 - Docker Compose
 
-Se recomienda usar una versión actual de Node.js si se elige la ejecución local.
+Para la ejecución local se requiere Node.js 22.
 
 ---
 

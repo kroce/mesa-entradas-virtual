@@ -8,6 +8,7 @@ import {
   updateOrganismo,
 } from '../api/organismos';
 import { OrganismoForm } from '../components/OrganismoForm';
+import { useAutoClearMessage } from '../hooks/useAutoClearMessage';
 import type { CreateOrganismoInput, Organismo, UpdateOrganismoInput } from '../types/Organismo';
 
 const { Title } = Typography;
@@ -17,8 +18,11 @@ export function OrganismosPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [editingOrganismo, setEditingOrganismo] = useState<Organismo | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  useAutoClearMessage(successMessage, setSuccessMessage);
 
   useEffect(() => {
     let isMounted = true;
@@ -49,10 +53,12 @@ export function OrganismosPage() {
     try {
       setIsSubmitting(true);
       setError(null);
+      setSuccessMessage(null);
 
       const organismo = await createOrganismo(values);
 
       setOrganismos((currentOrganismos) => [...currentOrganismos, organismo]);
+      setSuccessMessage(`Organismo ${organismo.codigo} creado correctamente.`);
 
       return true;
     } catch (error) {
@@ -68,12 +74,14 @@ export function OrganismosPage() {
   async function handleDeleteOrganismo(codigo: string) {
     try {
       setError(null);
+      setSuccessMessage(null);
 
       await deleteOrganismo(codigo);
 
       setOrganismos((currentOrganismos) =>
         currentOrganismos.filter((organismo) => organismo.codigo !== codigo),
       );
+      setSuccessMessage(`Organismo ${codigo} eliminado correctamente.`);
     } catch {
       setError('No se pudo eliminar el organismo');
     }
@@ -87,6 +95,7 @@ export function OrganismosPage() {
     try {
       setIsUpdating(true);
       setError(null);
+      setSuccessMessage(null);
 
       const updatedOrganismo = await updateOrganismo(editingOrganismo.codigo, values);
 
@@ -96,6 +105,7 @@ export function OrganismosPage() {
         ),
       );
 
+      setSuccessMessage(`Organismo ${updatedOrganismo.codigo} actualizado correctamente.`);
       setEditingOrganismo(null);
     } catch {
       setError('No se pudo actualizar el organismo');
@@ -107,6 +117,17 @@ export function OrganismosPage() {
   return (
     <>
       {error && <Alert type="error" title={error} showIcon />}
+
+      {successMessage && (
+        <Alert
+          type="success"
+          title={successMessage}
+          showIcon
+          closable={{
+            onClose: () => setSuccessMessage(null),
+          }}
+        />
+      )}
 
       <Card style={{ marginBottom: 24 }}>
         <Title level={2}>Nuevo organismo</Title>
