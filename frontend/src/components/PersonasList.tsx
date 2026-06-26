@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button, Card, Table, Typography } from 'antd';
 import type { TableProps } from 'antd';
 
@@ -11,6 +12,9 @@ type PersonasListProps = {
 };
 
 export function PersonasList({ personas, onEdit }: PersonasListProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const columns: TableProps<Persona>['columns'] = [
     {
       title: 'DNI',
@@ -50,9 +54,14 @@ export function PersonasList({ personas, onEdit }: PersonasListProps) {
         columns={columns}
         dataSource={personas}
         pagination={{
-          pageSize: 10,
+          current: currentPage,
+          pageSize,
           showSizeChanger: true,
           pageSizeOptions: [10, 20, 50],
+          onChange: (page, nextPageSize) => {
+            setCurrentPage(page);
+            setPageSize(nextPageSize);
+          },
         }}
       />
     </Card>
